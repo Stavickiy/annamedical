@@ -1,0 +1,9 @@
+../djvenv/
+media/
+migrations/
+__pycache__/
+.env
+.idea/
+*.py[cod]
+*$py.class
+db.sqlite3
