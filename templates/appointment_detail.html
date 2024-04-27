@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row gy-5">
+            <div class="col-lg-9 order-2 order-lg-1">
+                <p class="lead mb-4 text-sm">Запись <strong>{{ appointment.patient }}</strong> <br>
+                    Была создана: <strong>{{ order.created_at }}</strong> <br>
+                    Статус: <strong class="{% if appointment.status == 'canceled' %} text-danger {% endif %}">{{order.get_status_display}}</strong> <br>
+                    Способ оплаты: <strong>{{order.get_type_payment_display}}</strong><br>
+                    Статус оплаты: <strong>{{order.get_payment_status_display}}</strong><br>
+                    Способ доставки: <strong>{{order.get_type_delivery_display}}</strong></p>
+                <!-- PATIENTS TABLE-->
+                <div class="table-responsive">
+                    <table class="table table-hover text-nowrap">
+                        <thead>
+                        <tr class="text-sm">
+                            <th class="border-gray-300 border-top py-3">№</th>
+                            <th class="border-gray-300 border-top py-3 ">Процедура</th>
+                            <th class="border-gray-300 border-top py-3">Время начала</th>
+                            <th class="border-gray-300 border-top py-3">Время окончания</th>
+                            <th class="border-gray-300 border-top py-3">Тип</th>
+                            <th class="border-gray-300 border-top py-3">Лечащий врач</th>
+                            <th class="border-gray-300 border-top py-3">Действие</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for appointment in appointments %}
+                        <tr class="text-sm">
+                            <th class="align-middle py-3">{{ forloop.counter }}</th>
+                            <td class="align-middle py-3"><a href="#">{{ appointment.patient }}</a></td>
+                            <td class="align-middle py-3">{{ appointment.start }}</td>
+                            <td class="align-middle py-3">{{ appointment.end }}</td>
+                            <td class="align-middle py-3">{{ appointment.get_type_display }}</td>
+                            <td class="align-middle py-3"><a href="#">{{ appointment.doctor }}</a></td>
+                            <td class="align-middle py-3">
+                                <a class="btn btn-outline-primary btn-sm" href="{% url 'appointment:appointment_detail' appointment.pk %}">Детально</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-3 order-1 order-lg-2">
+                <h3 class="h4 text-uppercase lined mb-4">Записи на приём</h3>
+                <nav class="nav flex-column nav-pills">
+                    <a class="nav-link text-sm active" href="customer-orders.html">
+                        <i class="me-2 fas fa-list"></i><span>Все записи</span></a>
+                    <a class="nav-link text-sm" href="customer-wishlist.html">
+                        <i class="me-2 fas fa-heart"></i><span>Мои записи</span></a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock%}

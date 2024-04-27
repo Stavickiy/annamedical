@@ -64,7 +64,9 @@
                         <p class="m-0"><i class="fa fa-envelope-open me-2"></i>Создатель: stavickiydgo@gmail.com</p>
                     </div>
                     <div class="py-2">
-                        <p class="m-0"><i class="fab fa-telegram fw-normal"></i>@Eugenius71991</p>
+                        <p class="m-0"><i class="fab fa-telegram fw-normal"></i>
+                            <a href="https://t.me/Eugenius71991" style="color:white;">@Eugenius71991</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -84,7 +86,7 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-0">
                 <a href="{% url 'core:home' %}" class="nav-item nav-link active">Главная</a>
-                <a href="about.html" class="nav-item nav-link">Записи</a>
+                <a href="{% url 'appointment:appointments' %}" class="nav-item nav-link">Записи</a>
                 <a href="{% url 'core:services' %}" class="nav-item nav-link">Услуги</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
@@ -94,7 +96,7 @@
                         <a href="appointment.html" class="dropdown-item">Запись на прием</a>
                     </div>
                 </div>
-                <a href="contact.html" class="nav-item nav-link">Пациенты</a>
+                <a href="{% url 'core:patients' %}" class="nav-item nav-link">Пациенты</a>
             </div>
             <button type="button" class="btn text-dark" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></button>
             <a href="appointment.html" class="btn btn-primary py-2 px-4 ms-3">Создать запись</a>
@@ -123,6 +125,14 @@
 
     {% block content %}
     {% endblock %}
+    <div class="container-fluid bg-primary bg-testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-light py-5 wow fadeInUp" data-wow-delay="0.3s" style="margin-top: -75px;">

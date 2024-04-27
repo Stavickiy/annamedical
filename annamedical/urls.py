@@ -22,6 +22,7 @@ from annamedical import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
+    path('appointments/', include('appointment.urls', namespace='appointment')),
 ]
 
 if settings.DEBUG:

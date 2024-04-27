@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 
-from .models import Doctor
+from .models import Doctor, Patient
 
 
 class HomePage(TemplateView):
@@ -21,3 +21,9 @@ class DoctorsPage(ListView):
 class ServicePage(TemplateView):
     template_name = 'services.html'
     extra_context = {'title': 'Наши услуги'}
+
+
+class PatientsPage(ListView):
+    model = Patient
+    template_name = 'patients.html'
+    context_object_name = 'patients'

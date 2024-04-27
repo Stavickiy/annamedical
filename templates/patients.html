@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row gy-5">
+            <div class="col-lg-9 order-2 order-lg-1">
+                <!-- PATIENTS TABLE-->
+                <div class="table-responsive">
+                    <table class="table table-hover text-nowrap">
+                        <thead>
+                        <tr class="text-sm">
+                            <th class="border-gray-300 border-top py-3">№</th>
+                            <th class="border-gray-300 border-top py-3">Фото</th>
+                            <th class="border-gray-300 border-top py-3">Имя Фамилия</th>
+                            <th class="border-gray-300 border-top py-3">Лечащий врач</th>
+                            <th class="border-gray-300 border-top py-3">Действие</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for patient in patients %}
+                            <tr class="text-sm">
+                                <th class="align-middle py-3">{{ forloop.counter }}</th>
+                                <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="{{ patient.photo.url }}" alt="{{ patient }}" style="min-width: 50px" width="50"></td>
+                                <td class="align-middle py-3"><a href="#">{{ patient }}</a></td>
+                                <td class="align-middle py-3"><a href="#">{{ patient.doctor }}</a></td>
+                                <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm"
+                                                                 href="customer-order.html">Детально</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-3 order-1 order-lg-2">
+                <h3 class="h4 text-uppercase lined mb-4">Список пациентов</h3>
+                <nav class="nav flex-column nav-pills">
+                    <a class="nav-link text-sm active" href="customer-orders.html">
+                        <i class="me-2 fas fa-list"></i><span>Все пациенты</span></a>
+                    <a class="nav-link text-sm" href="customer-wishlist.html">
+                        <i class="me-2 fas fa-heart"></i><span>Мои пациенты</span></a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

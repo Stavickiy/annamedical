@@ -1,14 +1,14 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Doctor, Patient
+from .models import Doctor, Patient, Service
 
 
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'specialization', 'doctor_photo')
+    list_display = ('id', 'first_name', 'last_name', 'specialization', 'is_main', 'doctor_photo')
     list_display_links = ('id', 'last_name')
-    fields = ('first_name', 'last_name', 'doctor_photo', 'specialization', 'photo')
+    fields = ('first_name', 'last_name', 'is_main', 'doctor_photo', 'specialization', 'photo')
     readonly_fields = ['doctor_photo']
 
     @admin.display(description='Фото доктора')
@@ -21,7 +21,7 @@ class DoctorAdmin(admin.ModelAdmin):
 class PatientAdmin(admin.ModelAdmin):
     list_display = ('id', 'first_name', 'last_name', 'doctor', 'phone_number', 'photo_display')
     list_display_links = ('id', 'last_name')
-    fields = ('first_name', 'last_name', 'date_of_birth', 'doctor', 'gender',
+    fields = ('first_name', 'last_name', 'date_of_birth', 'doctor', 'gender', 'photo',
               'phone_number', 'photo_display', 'medical_history')
     readonly_fields = ['photo_display']
 
@@ -30,3 +30,10 @@ class PatientAdmin(admin.ModelAdmin):
     def photo_display(self, patient: Patient):
         return mark_safe(
             f"<a href='{patient.photo.url}'><img src='{patient.photo.url}' alt='{patient.last_name}' width='100'></a>")
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'cost')
+    list_display_links = ('id', 'name')
+    fields = ('name', 'cost')
