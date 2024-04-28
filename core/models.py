@@ -32,6 +32,9 @@ class Patient(models.Model):
     def __str__(self):
         return ' '.join((str(self.first_name), str(self.last_name)))
 
+    def full_name(self):
+        return ' '.join((str(self.first_name), str(self.last_name)))
+
 
 class Service(models.Model):
     name = models.CharField(max_length=100)

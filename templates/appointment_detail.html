@@ -4,8 +4,9 @@
     <div class="container py-4">
         <div class="row gy-5">
             <div class="col-lg-9 order-2 order-lg-1">
-                <p class="lead mb-4 text-sm">Запись <strong>{{ appointment.patient }}</strong> <br>
-                    Была создана: <strong>{{ order.created_at }}</strong> <br>
+                <p class="lead mb-4 text-sm">Пациент: <a href="#"><strong>{{ appointment.patient }}</strong></a> <br>
+                    Дата записи: <strong>{{ appointment.start.date }}</strong> <br>
+                    Время записи: <strong>{{ appointment.start.time }} - {{ appointment.end.time }}</strong> <br>
                     Статус: <strong class="{% if appointment.status == 'canceled' %} text-danger {% endif %}">{{order.get_status_display}}</strong> <br>
                     Способ оплаты: <strong>{{order.get_type_payment_display}}</strong><br>
                     Статус оплаты: <strong>{{order.get_payment_status_display}}</strong><br>

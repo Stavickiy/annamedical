@@ -11,41 +11,25 @@
                         <tr class="text-sm">
                             <th class="border-gray-300 border-top py-3">№</th>
                             <th class="border-gray-300 border-top py-3 ">Имя Фамилия</th>
-                            <th class="border-gray-300 border-top py-3">Время начала</th>
-                            <th class="border-gray-300 border-top py-3">Время окончания</th>
+                            <th class="border-gray-300 border-top py-3">Дата записи</th>
+                            <th class="border-gray-300 border-top py-3">Время записи</th>
                             <th class="border-gray-300 border-top py-3">Тип</th>
                             <th class="border-gray-300 border-top py-3">Лечащий врач</th>
                             <th class="border-gray-300 border-top py-3">Действие</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <form action="#" method="GET">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="start_date">Дата начала:</label>
-                                        <input type="date" id="start_date" name="start_date" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="end_date">Дата окончания:</label>
-                                        <input type="date" id="end_date" name="end_date" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Применить фильтр</button>
-                        </form>
                         {% for appointment in appointments %}
                         <tr class="text-sm">
                             <th class="align-middle py-3">{{ forloop.counter }}</th>
                             <td class="align-middle py-3"><a href="#">{{ appointment.patient }}</a></td>
-                            <td class="align-middle py-3">{{ appointment.start }}</td>
-                            <td class="align-middle py-3">{{ appointment.end }}</td>
+                            <td class="align-middle py-3">{{ appointment.start.date }}</td>
+                            <td class="align-middle py-3">{{ appointment.start.time }} - {{ appointment.end.time }}</td>
                             <td class="align-middle py-3">{{ appointment.get_type_display }}</td>
                             <td class="align-middle py-3"><a href="#">{{ appointment.doctor }}</a></td>
                             <td class="align-middle py-3">
-                                <a class="btn btn-outline-primary btn-sm" href="{% url 'appointment:appointment_detail' appointment.pk %}">Детально</a>
+                                <a class="btn btn-outline-primary btn-sm"
+                                   href="{% url 'appointment:appointment_detail' appointment.pk %}">Детально</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -61,6 +45,26 @@
                     <a class="nav-link text-sm" href="customer-wishlist.html">
                         <i class="me-2 fas fa-heart"></i><span>Мои записи</span></a>
                 </nav>
+                <hr>
+                <form action="#" method="GET">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="start_date">С:</label>
+                                <input type="date" id="start_date" name="start_date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="end_date">По:</label>
+                                <input type="date" id="end_date" name="end_date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary" style="margin: 5px;">Применить фильтр</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
