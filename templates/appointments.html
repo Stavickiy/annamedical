@@ -69,4 +69,20 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Получаем сегодняшнюю дату
+        var today = new Date().toISOString().split('T')[0];
+        // Устанавливаем значение по умолчанию для поля "С" (start_date)
+        document.getElementById("start_date").value = today;
+
+        // Получаем дату через 7 дней
+        var endDate = new Date();
+        endDate.setDate(endDate.getDate() + 7);
+        var nextWeek = endDate.toISOString().split('T')[0];
+        // Устанавливаем значение по умолчанию для поля "По" (end_date)
+        document.getElementById("end_date").value = nextWeek;
+    });
+</script>
 {% endblock %}

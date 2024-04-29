@@ -12,6 +12,7 @@ class AppointmentAdmin(admin.ModelAdmin):
     filter_horizontal = ('services',)
     readonly_fields = ['get_procedures']
     list_editable = ('type', 'status')
+    ordering = ['start', 'patient']
 
     def get_procedures(self, obj):
         return mark_safe("<br>".join([f'{p.name} {p.cost}р.' for p in obj.procedures.all()]))

@@ -11,7 +11,7 @@
                         <tr class="text-sm">
                             <th class="border-gray-300 border-top py-3">№</th>
                             <th class="border-gray-300 border-top py-3">Фото</th>
-                            <th class="border-gray-300 border-top py-3">Имя Фамилия</th>
+                            <th class="border-gray-300 border-top py-3">Фамилия Имя</th>
                             <th class="border-gray-300 border-top py-3">Лечащий врач</th>
                             <th class="border-gray-300 border-top py-3">Действие</th>
                         </tr>
@@ -21,7 +21,7 @@
                             <tr class="text-sm">
                                 <th class="align-middle py-3">{{ forloop.counter }}</th>
                                 <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="{{ patient.photo.url }}" alt="{{ patient }}" style="min-width: 50px" width="50"></td>
-                                <td class="align-middle py-3"><a href="#">{{ patient.last_name }}</a></td>
+                                <td class="align-middle py-3"><a href="#">{{ patient.full_name }}</a></td>
                                 <td class="align-middle py-3"><a href="#">{{ patient.doctor_id }}</a></td>
                                 <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm"
                                                                  href="customer-order.html">Детально</a></td>
@@ -34,7 +34,7 @@
             <div class="col-lg-3 order-1 order-lg-2">
                 <h3 class="h4 text-uppercase lined mb-4">Список пациентов</h3>
                 <nav class="nav flex-column nav-pills">
-                    <a class="nav-link text-sm active" href="customer-orders.html">
+                    <a class="nav-link text-sm active" href="customer-orders.html" id="allPatientsLink">
                         <i class="me-2 fas fa-list"></i><span>Все пациенты</span></a>
                     <a class="nav-link text-sm" href="#" id="myPatientsLink">
                         <i class="me-2 fas fa-heart"></i><span>Мои пациенты</span></a>
@@ -46,32 +46,74 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("myPatientsLink").addEventListener("click", function(event) {
-        event.preventDefault(); // Предотвращаем переход по ссылке
+    // Функция для обновления URL и списка пациентов
+    function updateFilterAndList(filterParams) {
+        // Формируем новый URL с параметрами фильтрации
+        var newUrl = window.location.pathname + '?';
+        newUrl += filterParams;
+        // Убираем последний символ '&'
+        newUrl = newUrl.slice(0, -1);
 
-        // Отправляем AJAX запрос на ваше API
-        fetch("{% url 'api:patients' %}?doc_id=2")
+        // Изменяем URL без перезагрузки страницы
+        history.pushState(filterParams, '', newUrl);
+    }
+
+    // Обработчик нажатия на ссылку "Все пациенты"
+    document.getElementById("allPatientsLink").addEventListener("click", function(event) {
+        event.preventDefault(); // Предотвращаем переход по ссылке
+        // Снимаем класс active у текущей активной ссылки
+        document.querySelector(".nav-link.active").classList.remove("active");
+        // Добавляем класс active для ссылки "Все пациенты"
+        this.classList.add("active");
+
+        // Вызываем функцию для обновления URL и списка пациентов с параметром 'all'
+        updateFilterAndList('doc=all&');
+
+        // Отправляем AJAX запрос на ваше API для получения всех пациентов
+        fetch("{% url 'api:all_patients' %}")
             .then(response => response.json())
             .then(data => {
                 // Обновляем список пациентов на странице
-                updatePatientsList(data.patients);
+                updatePatientsList(data);
             })
             .catch(error => console.error("Ошибка при отправке запроса:", error));
     });
 
-    function updatePatientsList(patients) {
+    // Обработчик нажатия на ссылку "Мои пациенты"
+    document.getElementById("myPatientsLink").addEventListener("click", function(event) {
+        event.preventDefault(); // Предотвращаем переход по ссылке
+        // Снимаем класс active у текущей активной ссылки
+        document.querySelector(".nav-link.active").classList.remove("active");
+        // Добавляем класс active для ссылки "Мои пациенты"
+        this.classList.add("active");
+
+        // Вызываем функцию для обновления URL и списка пациентов с параметром 'doctor'
+        updateFilterAndList('doc=1&');
+
+        // Отправляем AJAX запрос на ваше API для получения пациентов по текущему доктору
+        fetch("{% url 'api:doctor_patients' pk=1 %}")  // Замените 1 на нужный вам pk
+            .then(response => response.json())
+            .then(data => {
+                // Обновляем список пациентов на странице
+                updatePatientsList(data);
+            })
+            .catch(error => console.error("Ошибка при отправке запроса:", error));
+    });
+
+    // Функция для обновления списка пациентов на странице
+    function updatePatientsList(data) {
         // Очищаем текущий список пациентов
         var patientsTableBody = document.querySelector("#patientsTable tbody");
         patientsTableBody.innerHTML = "";
 
         // Добавляем новые строки с пациентами в таблицу
-        patients.forEach(function(patient, index) {
+        data.forEach(function(patient, index) {
             var row = `
                 <tr class="text-sm">
                     <th class="align-middle py-3">${index + 1}</th>
                     <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="${patient.photo}" alt="${patient.name}" style="min-width: 50px" width="50"></td>
                     <td class="align-middle py-3"><a href="#">${patient.full_name}</a></td>
-                    <td class="align-middle py-3"><a href="#">${patient.doctor_name}</a></td>
+                    <td class="align-middle py-3"><a href="#">${patient.doctor_full_name}</a></td>
                     <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm" href="#">Детально</a></td>
                 </tr>`;
             patientsTableBody.innerHTML += row;

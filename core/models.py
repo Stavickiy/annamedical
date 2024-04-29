@@ -8,10 +8,10 @@ class Doctor(models.Model):
     specialization = models.CharField(max_length=200, default=0)
 
     def full_name(self):
-        return ' '.join((str(self.first_name), str(self.last_name)))
+        return ' '.join((str(self.last_name), str(self.first_name)))
 
     def __str__(self):
-        return ' '.join((str(self.first_name), str(self.last_name)))
+        return ' '.join((str(self.last_name), str(self.first_name)))
 
 
 class GenderType(models.TextChoices):
@@ -30,10 +30,10 @@ class Patient(models.Model):
     photo = models.ImageField(upload_to='patients_photo/', blank=True)
 
     def __str__(self):
-        return ' '.join((str(self.first_name), str(self.last_name)))
+        return ' '.join((str(self.last_name), str(self.first_name)))
 
     def full_name(self):
-        return ' '.join((str(self.first_name), str(self.last_name)))
+        return ' '.join((str(self.last_name), str(self.first_name)))
 
 
 class Service(models.Model):

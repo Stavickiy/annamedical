@@ -3,56 +3,88 @@
 <section class="py-5">
     <div class="container py-4">
         <div class="row gy-5">
-            <div class="col-lg-9 order-2 order-lg-1">
-                <p class="lead mb-4 text-sm">Пациент: <a href="#"><strong>{{ appointment.patient }}</strong></a> <br>
+            <p class="lead mb-4 text-sm">Пациент: <a href="#"><strong>{{ appointment.patient }}</strong></a> <br>
                     Дата записи: <strong>{{ appointment.start.date }}</strong> <br>
                     Время записи: <strong>{{ appointment.start.time }} - {{ appointment.end.time }}</strong> <br>
-                    Статус: <strong class="{% if appointment.status == 'canceled' %} text-danger {% endif %}">{{order.get_status_display}}</strong> <br>
-                    Способ оплаты: <strong>{{order.get_type_payment_display}}</strong><br>
-                    Статус оплаты: <strong>{{order.get_payment_status_display}}</strong><br>
-                    Способ доставки: <strong>{{order.get_type_delivery_display}}</strong></p>
-                <!-- PATIENTS TABLE-->
-                <div class="table-responsive">
-                    <table class="table table-hover text-nowrap">
-                        <thead>
-                        <tr class="text-sm">
-                            <th class="border-gray-300 border-top py-3">№</th>
-                            <th class="border-gray-300 border-top py-3 ">Процедура</th>
-                            <th class="border-gray-300 border-top py-3">Время начала</th>
-                            <th class="border-gray-300 border-top py-3">Время окончания</th>
-                            <th class="border-gray-300 border-top py-3">Тип</th>
-                            <th class="border-gray-300 border-top py-3">Лечащий врач</th>
-                            <th class="border-gray-300 border-top py-3">Действие</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for appointment in appointments %}
-                        <tr class="text-sm">
-                            <th class="align-middle py-3">{{ forloop.counter }}</th>
-                            <td class="align-middle py-3"><a href="#">{{ appointment.patient }}</a></td>
-                            <td class="align-middle py-3">{{ appointment.start }}</td>
-                            <td class="align-middle py-3">{{ appointment.end }}</td>
-                            <td class="align-middle py-3">{{ appointment.get_type_display }}</td>
-                            <td class="align-middle py-3"><a href="#">{{ appointment.doctor }}</a></td>
-                            <td class="align-middle py-3">
-                                <a class="btn btn-outline-primary btn-sm" href="{% url 'appointment:appointment_detail' appointment.pk %}">Детально</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    Статус: <strong class="{% if appointment.status == 'canceled' %} text-danger {% endif %}">{{appointment.get_status_display}}</strong>
+                    <br>
+                    Доктор: <strong>{{appointment.doctor}}</strong><br>
+                    Тип записи: <strong>{{ appointment.get_type_display }}</strong><br>
+                    Статус оплаты: <strong>{{appointment.get_type_displa}}</strong><br>
+                    Примечание: <strong>{{appointment.description}}</strong></p>
+            <div class="row">
+                <div class="col-lg-8 mb-4 mb-lg-0">
+                    <!-- CART TABLE-->
+                    <div class="table-responsive mb-4">
+                        <table class="table text-nowrap">
+                            <thead class="bg-light">
+                            <tr>
+                                <th class="border-0 p-3" scope="col"><strong
+                                        class="text-sm text-uppercase">Процедура</strong>
+                                </th>
+                                <th class="border-0 p-3" scope="col"><strong
+                                        class="text-sm text-uppercase">Стоимость</strong></th>
+                                <th class="border-0 p-3" scope="col"><strong
+                                        class="text-sm text-uppercase">Удалить</strong></th>
+                            </tr>
+                            </thead>
+                            <tbody class="border-0">
+                            {% for service in services %}
+                            <tr>
+                                <td class="p-3 align-middle border-light">
+                                    <p class="mb-0 small">{{ service.name }}</p>
+                                </td>
+                                <td class="p-3 align-middle border-light">
+                                    <p class="mb-0 small">{{ service.cost }}</p>
+                                </td>
+                                <td class="p-3 align-middle border-light"><a class="reset-anchor" href="#!"><i
+                                        class="fas fa-trash-alt small text-muted"></i></a></td>
+                            </tr>
+                            </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <!-- CART NAV-->
+                    <div class="bg-light px-4 py-3">
+                        <div class="row align-items-center text-center">
+                            <div class="col-md-6 mb-3 mb-md-0 text-md-start"><a
+                                    class="btn btn-link p-0 text-dark btn-sm"
+                                    href="shop.html"><i
+                                    class="fas fa-long-arrow-alt-left me-2"> </i>Continue shopping</a></div>
+                            <div class="col-md-6 text-md-end"><a class="btn btn-outline-dark btn-sm"
+                                                                 href="checkout.html">Procceed
+                                to checkout<i class="fas fa-long-arrow-alt-right ms-2"></i></a></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 order-1 order-lg-2">
-                <h3 class="h4 text-uppercase lined mb-4">Записи на приём</h3>
-                <nav class="nav flex-column nav-pills">
-                    <a class="nav-link text-sm active" href="customer-orders.html">
-                        <i class="me-2 fas fa-list"></i><span>Все записи</span></a>
-                    <a class="nav-link text-sm" href="customer-wishlist.html">
-                        <i class="me-2 fas fa-heart"></i><span>Мои записи</span></a>
-                </nav>
+                <!-- ORDER TOTAL-->
+                <div class="col-lg-4">
+                    <div class="card border-0 rounded-0 p-lg-4 bg-light">
+                        <div class="card-body">
+                            <h5 class="text-uppercase mb-4">Cart total</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li class="d-flex align-items-center justify-content-between"><strong
+                                        class="text-uppercase small font-weight-bold">Subtotal</strong><span
+                                        class="text-muted small">$250</span></li>
+                                <li class="border-bottom my-2"></li>
+                                <li class="d-flex align-items-center justify-content-between mb-4"><strong
+                                        class="text-uppercase small font-weight-bold">Total</strong><span>$250</span>
+                                </li>
+                                <li>
+                                    <form action="#">
+                                        <div class="input-group mb-0">
+                                            <input class="form-control" type="text" placeholder="Enter your coupon">
+                                            <button class="btn btn-dark btn-sm w-100" type="submit"><i
+                                                    class="fas fa-gift me-2"></i>Apply coupon
+                                            </button>
+                                        </div>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</section>
 {% endblock%}

@@ -3,6 +3,8 @@ from django.views.generic import ListView, DetailView
 
 from appointment.models import Appointment
 from core.models import Service
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Appointments(ListView):
@@ -11,7 +13,12 @@ class Appointments(ListView):
     context_object_name = 'appointments'
 
     def get_queryset(self):
-        appointments = Appointment.objects.all()
+        # Получаем текущую дату и время
+        current_datetime = timezone.now()
+        # Определяем дату, на которую будет осуществлено отображение
+        end_date = current_datetime + timedelta(days=7)
+        # Фильтруем записи Appointment по полю start
+        appointments = Appointment.objects.filter(start__gte=current_datetime, start__lte=end_date)
         return appointments
 
 class AppointmentDitail(DetailView):
@@ -23,7 +30,7 @@ class AppointmentDitail(DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         appointment = context['appointment']
-        context['services'] = appointment.services
+        context['services'] = appointment.services.all
         return context
 
     def get_object(self, queryset=None):

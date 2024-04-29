@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 
-from rest_framework import generics
+from rest_framework import generics, viewsets
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -8,21 +9,21 @@ from api.serialisers import PatientSerializer
 from core.models import Patient, Doctor
 
 
-class PatientAPIList(APIView):
-    def get(self, request):
-        if 'doc_id' in request.query_params:
-            patients = Patient.objects.filter(doctor=request.query_params['doc_id']).values()
-        else:
-            patients = Patient.objects.all().values()
-
-        for patient in patients:
-            patient['photo'] = '/media/' + patient['photo']
-            patient['full_name'] = patient['first_name'] + ' ' + patient['last_name']
-        doctor_name = get_object_or_404(Doctor, pk=patient['doctor_id']).full_name()
-        patient['doctor_name'] = doctor_name
-        return Response({'patients': patients})
+class PatientsViewSet(viewsets.ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
 
 
-# class PatientAPIList(generics.ListAPIView):
-#     queryset = Patient.objects.all()
-#     serializer_class = PatientSerializer
+class PatientsAPIList(generics.ListAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+
+
+class DoctorPatientsAPIList(ListAPIView):
+    serializer_class = PatientSerializer
+
+    def get_queryset(self):
+        doctor_pk = self.kwargs['pk']
+        doctor = get_object_or_404(Doctor, pk=doctor_pk)
+        patients = doctor.patients.all()
+        return patients
