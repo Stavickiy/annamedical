@@ -15,8 +15,15 @@ class Doctor(models.Model):
 
 
 class GenderType(models.TextChoices):
-    FEMALE = 'female', 'женский'
-    MALE = 'male', 'мужской'
+    FEMALE = 'female', 'Женский'
+    MALE = 'male', 'Мужской'
+
+
+class Clinic(models.Model):
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name
 
 
 class Patient(models.Model):
@@ -28,6 +35,10 @@ class Patient(models.Model):
     phone_number = models.CharField(max_length=20)
     medical_history = models.TextField(blank=True)
     photo = models.ImageField(upload_to='patients_photo/', blank=True)
+    city = models.CharField(max_length=100, blank=True, default=0)
+    clinic = models.ForeignKey(Clinic, on_delete=models.PROTECT, related_name='patients', default=None, null=True)
+    instagram = models.CharField(max_length=100, blank=True)
+    telegram = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return ' '.join((str(self.last_name), str(self.first_name)))

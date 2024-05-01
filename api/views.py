@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 
 from rest_framework import generics, viewsets
@@ -5,25 +6,46 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serialisers import PatientSerializer
+from api.serialisers import PatientSerializer, AppointmentSerializer
+from appointment.models import Appointment
 from core.models import Patient, Doctor
+from datetime import datetime, timedelta
 
 
-class PatientsViewSet(viewsets.ModelViewSet):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+
+class AppointmentsAPIList(LoginRequiredMixin, ListAPIView):
+    serializer_class = AppointmentSerializer
+
+    def get_queryset(self):
+        doctor_pk = self.request.query_params.get('doc', None)
+        # Получаем текущую дату
+        current_date = datetime.now().date()
+
+        # Определяем дату, на которую будет осуществлено отображение
+        end_date = current_date + timedelta(days=7)
+
+        # Фильтруем записи Appointment по полю date
+        if doctor_pk:
+            doctor = get_object_or_404(Doctor, pk=doctor_pk)
+            appointments = doctor.appointments.filter(start__date__gte=current_date, start__date__lte=end_date)
+        else:
+            appointments = Appointment.objects.filter(start__date__gte=current_date, start__date__lte=end_date)
+        return appointments
 
 
-class PatientsAPIList(generics.ListAPIView):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+# class PatientsAPIList(generics.ListAPIView):
+#     queryset = Patient.objects.all()
+#     serializer_class = PatientSerializer
 
 
-class DoctorPatientsAPIList(ListAPIView):
+class PatientsAPIList(LoginRequiredMixin, ListAPIView):
     serializer_class = PatientSerializer
 
     def get_queryset(self):
-        doctor_pk = self.kwargs['pk']
-        doctor = get_object_or_404(Doctor, pk=doctor_pk)
-        patients = doctor.patients.all()
+        doctor_pk = self.request.query_params.get('doc', None)
+        if doctor_pk:
+            doctor = get_object_or_404(Doctor, pk=doctor_pk)
+            patients = doctor.patients.all()
+        else:
+            patients = Patient.objects.all()
         return patients

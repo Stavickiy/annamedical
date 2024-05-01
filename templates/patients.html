@@ -22,9 +22,9 @@
                                 <th class="align-middle py-3">{{ forloop.counter }}</th>
                                 <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="{{ patient.photo.url }}" alt="{{ patient }}" style="min-width: 50px" width="50"></td>
                                 <td class="align-middle py-3"><a href="#">{{ patient.full_name }}</a></td>
-                                <td class="align-middle py-3"><a href="#">{{ patient.doctor_id }}</a></td>
+                                <td class="align-middle py-3"><a href="#">{{ patient.doctor }}</a></td>
                                 <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm"
-                                                                 href="customer-order.html">Детально</a></td>
+                                                                 href="{% url 'core:patient_detail' patient.pk %}">Детально</a></td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -45,6 +45,7 @@
 </section>
 
 <script>
+var doctorId = {{ doctor_id }};
 document.addEventListener("DOMContentLoaded", function() {
     // Функция для обновления URL и списка пациентов
     function updateFilterAndList(filterParams) {
@@ -70,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
         updateFilterAndList('doc=all&');
 
         // Отправляем AJAX запрос на ваше API для получения всех пациентов
-        fetch("{% url 'api:all_patients' %}")
+        fetch("{% url 'api:patients' %}")
             .then(response => response.json())
             .then(data => {
                 // Обновляем список пациентов на странице
@@ -88,10 +89,10 @@ document.addEventListener("DOMContentLoaded", function() {
         this.classList.add("active");
 
         // Вызываем функцию для обновления URL и списка пациентов с параметром 'doctor'
-        updateFilterAndList('doc=1&');
+        updateFilterAndList('doc=' + doctorId + '&');
 
         // Отправляем AJAX запрос на ваше API для получения пациентов по текущему доктору
-        fetch("{% url 'api:doctor_patients' pk=1 %}")  // Замените 1 на нужный вам pk
+        fetch("{% url 'api:patients'%}?doc=" + doctorId + "&")  // Замените 1 на нужный вам pk
             .then(response => response.json())
             .then(data => {
                 // Обновляем список пациентов на странице

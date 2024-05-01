@@ -6,7 +6,7 @@
             <div class="col-lg-9 order-2 order-lg-1">
                 <!-- PATIENTS TABLE-->
                 <div class="table-responsive">
-                    <table class="table table-hover text-nowrap">
+                    <table class="table table-hover text-nowrap" id="appointmentsTable">
                         <thead>
                         <tr class="text-sm">
                             <th class="border-gray-300 border-top py-3">№</th>
@@ -38,11 +38,11 @@
                 </div>
             </div>
             <div class="col-lg-3 order-1 order-lg-2">
-                <h3 class="h4 text-uppercase lined mb-4">Записи на приём</h3>
+                <h3 class="h4 text-uppercase lined mb-4">Запись на приём</h3>
                 <nav class="nav flex-column nav-pills">
-                    <a class="nav-link text-sm active" href="customer-orders.html">
+                    <a class="nav-link text-sm active" href="#" id="allAppointmentsLink">
                         <i class="me-2 fas fa-list"></i><span>Все записи</span></a>
-                    <a class="nav-link text-sm" href="customer-wishlist.html">
+                    <a class="nav-link text-sm" href="#" id="myAppointmentsLink">
                         <i class="me-2 fas fa-heart"></i><span>Мои записи</span></a>
                 </nav>
                 <hr>
@@ -71,6 +71,7 @@
 </section>
 
 <script>
+    var doctorId = {{ doctor_id }};
     document.addEventListener("DOMContentLoaded", function() {
         // Получаем сегодняшнюю дату
         var today = new Date().toISOString().split('T')[0];
@@ -84,5 +85,87 @@
         // Устанавливаем значение по умолчанию для поля "По" (end_date)
         document.getElementById("end_date").value = nextWeek;
     });
+
+    document.addEventListener("DOMContentLoaded", function() {
+    // Функция для обновления URL и списка пациентов
+    function updateFilterAndList(filterParams) {
+        // Формируем новый URL с параметрами фильтрации
+        var newUrl = window.location.pathname + '?';
+        newUrl += filterParams;
+        // Убираем последний символ '&'
+        newUrl = newUrl.slice(0, -1);
+
+        // Изменяем URL без перезагрузки страницы
+        history.pushState(filterParams, '', newUrl);
+    }
+
+    // Обработчик нажатия на ссылку "Все пациенты"
+    document.getElementById("allAppointmentsLink").addEventListener("click", function(event) {
+        event.preventDefault(); // Предотвращаем переход по ссылке
+        // Снимаем класс active у текущей активной ссылки
+        document.querySelector(".nav-link.active").classList.remove("active");
+        // Добавляем класс active для ссылки "Все пациенты"
+        this.classList.add("active");
+
+        // Вызываем функцию для обновления URL и списка пациентов с параметром 'all'
+        updateFilterAndList('doc=all&');
+
+        // Отправляем AJAX запрос на ваше API для получения всех пациентов
+        fetch("{% url 'api:all_appointments' %}")
+            .then(response => response.json())
+            .then(data => {
+                // Обновляем список пациентов на странице
+                updateAppointmentsList(data);
+            })
+            .catch(error => console.error("Ошибка при отправке запроса:", error));
+    });
+
+    // Обработчик нажатия на ссылку "Мои пациенты"
+    document.getElementById("myAppointmentsLink").addEventListener("click", function(event) {
+        event.preventDefault(); // Предотвращаем переход по ссылке
+        // Снимаем класс active у текущей активной ссылки
+        document.querySelector(".nav-link.active").classList.remove("active");
+        // Добавляем класс active для ссылки "Мои пациенты"
+        this.classList.add("active");
+
+        // Вызываем функцию для обновления URL и списка пациентов с параметром 'doctor'
+        updateFilterAndList('doc=' + doctorId + '&');
+
+        // Отправляем AJAX запрос на ваше API для получения пациентов по текущему доктору
+        fetch("{% url 'api:all_appointments' %}?doc=" + doctorId + "&")
+            .then(response => response.json())
+            .then(data => {
+                // Обновляем список пациентов на странице
+                updateAppointmentsList(data);
+            })
+            .catch(error => console.error("Ошибка при отправке запроса:", error));
+    });
+
+    // Функция для обновления списка пациентов на странице
+    function updateAppointmentsList(data) {
+        // Очищаем текущий список пациентов
+        var appointmentsTableBody = document.querySelector("#appointmentsTable tbody");
+        appointmentsTableBody.innerHTML = "";
+
+        // Добавляем новые строки с пациентами в таблицу
+        data.forEach(function(appointment, index) {
+            var row = `
+                <tr class="text-sm">
+                    <th class="align-middle py-3">${index + 1}</th>
+                    <td class="align-middle py-3"><a href="#">${appointment.patient_full_name}</a></td>
+                    <td class="align-middle py-3">${appointment.start_date}</td>
+                    <td class="align-middle py-3">${appointment.start_time} - ${appointment.end_time}</td>
+                    <td class="align-middle py-3">${appointment.get_type_display}</td>
+                    <td class="align-middle py-3"><a href="#">${appointment.doctor_full_name}</a></td>
+                    <td class="align-middle py-3">
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="${appointment.url}">Детально</a>
+                    </td>
+                </tr>`;
+            appointmentsTableBody.innerHTML += row;
+        });
+    }
+});
+
 </script>
 {% endblock %}

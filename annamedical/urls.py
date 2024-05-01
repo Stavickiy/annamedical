@@ -21,6 +21,7 @@ from annamedical import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', include('users.urls', namespace='users')),
     path('', include('core.urls', namespace='core')),
     path('appointments/', include('appointment.urls', namespace='appointment')),
     path('api/', include('api.urls', namespace='api')),

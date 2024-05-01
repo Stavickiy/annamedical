@@ -5,10 +5,10 @@ from core.models import Patient, Doctor, Service
 
 
 class AppointmentStatus(models.TextChoices):
-    PLANNED = 'planned', 'Запланирована'
+    PLANNED = 'planned', 'Запланировано'
     APPROVED = 'approved', 'Подтверждено'
-    COMPLETED = 'completed', 'Завершена'
-    CANCELED = 'canceled', 'Отменена'
+    COMPLETED = 'completed', 'Завершено'
+    CANCELED = 'canceled', 'Отменено'
 
 
 class AppointmentType(models.TextChoices):
@@ -25,3 +25,10 @@ class Appointment(models.Model):
     description = models.TextField(blank=True)
     status = models.CharField(max_length=50, choices=AppointmentStatus.choices)
     services = models.ManyToManyField(Service, related_name='appointments', blank=True)
+
+    class Meta:
+        ordering = ['start']
+
+    def get_url_for_api(self):
+
+        return

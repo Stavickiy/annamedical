@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Doctor, Patient, Service
+from .models import Doctor, Patient, Service, Clinic
 
 
 @admin.register(Doctor)
@@ -19,10 +19,11 @@ class DoctorAdmin(admin.ModelAdmin):
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'doctor', 'phone_number', 'photo_display')
+    list_display = ('id', 'first_name', 'last_name', 'doctor', 'clinic', 'city',
+                    'phone_number', 'instagram', 'telegram', 'photo_display',)
     list_display_links = ('id', 'last_name')
-    fields = ('first_name', 'last_name', 'date_of_birth', 'doctor', 'gender', 'photo',
-              'phone_number', 'photo_display', 'medical_history')
+    fields = ('first_name', 'last_name', 'date_of_birth', 'doctor', 'clinic', 'city', 'gender', 'photo',
+              'phone_number', 'instagram', 'telegram', 'photo_display', 'medical_history')
     readonly_fields = ['photo_display']
 
 
@@ -37,3 +38,9 @@ class ServiceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'cost')
     list_display_links = ('id', 'name')
     fields = ('name', 'cost')
+
+@admin.register(Clinic)
+class ClinicAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    list_display_links = ('id', 'name')
+    fields = ('name',)
