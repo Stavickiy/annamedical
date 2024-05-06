@@ -29,6 +29,8 @@ class Appointment(models.Model):
     class Meta:
         ordering = ['start']
 
-    def get_url_for_api(self):
 
-        return
+
+class Photo(models.Model):
+    photo = models.ImageField(upload_to='appointments_photo/', blank=True)
+    appointment = models.ForeignKey(Appointment, on_delete=models.PROTECT, related_name='photos')

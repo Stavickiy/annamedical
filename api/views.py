@@ -6,7 +6,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serialisers import PatientSerializer, AppointmentSerializer
+from api.serialisers import PatientSerializer, AppointmentSerializer, AppointmentDetailSerializer
 from appointment.models import Appointment
 from core.models import Patient, Doctor
 from datetime import datetime, timedelta
@@ -33,9 +33,9 @@ class AppointmentsAPIList(LoginRequiredMixin, ListAPIView):
         return appointments
 
 
-# class PatientsAPIList(generics.ListAPIView):
-#     queryset = Patient.objects.all()
-#     serializer_class = PatientSerializer
+class AppointmentAPIView(LoginRequiredMixin, RetrieveUpdateDestroyAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentDetailSerializer
 
 
 class PatientsAPIList(LoginRequiredMixin, ListAPIView):

@@ -19,6 +19,9 @@
                             <thead class="bg-light">
                             <tr>
                                 <th class="border-0 p-3" scope="col"><strong
+                                        class="text-sm text-uppercase">#</strong>
+                                </th>
+                                <th class="border-0 p-3" scope="col"><strong
                                         class="text-sm text-uppercase">Процедура</strong>
                                 </th>
                                 <th class="border-0 p-3" scope="col"><strong
@@ -30,6 +33,9 @@
                             <tbody class="border-0">
                             {% for service in services %}
                             <tr>
+                                <td class="p-3 align-middle border-light">
+                                    <p class="mb-0 small">{{ forloop.counter }}</p>
+                                </td>
                                 <td class="p-3 align-middle border-light">
                                     <p class="mb-0 small">{{ service.name }}</p>
                                 </td>
@@ -46,11 +52,13 @@
                     <!-- CART NAV-->
                     <div class="bg-light px-4 py-3">
                         <div class="row align-items-center text-center">
+                            {% if appointment.get_status_display != 'Завершено' %}
                             <div class="col-md-6 text-md-end">
                                 <a class="btn btn-outline-dark btn-sm"
-                                   href="checkout.html">Редактировать запись
+                                   href="{% url 'appointment:appointment_update' appointment.pk %}">Редактировать запись
                                 </a>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -82,20 +90,90 @@
                 </div>
             </div>
         </div>
+        <!-- Pricing Start -->
+        <div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row g-5">
+                    <div class="col-lg-7">
+                        <div class="section-title mb-4">
+                            <h5 class="position-relative d-inline-block text-primary text-uppercase">Фото</h5>
+                        </div>
+                        <div class="owl-carousel price-carousel wow zoomIn" data-wow-delay="0.9s">
+                            {% for photo in appointment.photos.all %}
+                            <div class="position-relative">
+                                <div class="img-container-top">
+                                    <a href="{{ photo.photo.url }}">
+                                        <img class="img-fluid rounded" style="max-width: 300px; max-height: 200px;"
+                                             src="{{ photo.photo.url }}" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Pricing End -->
     </div>
+<!--    <div class="container">-->
+<!--        <div class="row gx-5">-->
+<!--            <div class="col-lg-6">-->
+<!--                <div class="appointment-form h-100 d-flex flex-column justify-content-center text-center p-5 wow zoomIn"-->
+<!--                     data-wow-delay="0.6s">-->
+<!--                    <h1 class="text-white mb-4">Make Appointment</h1>-->
+<!--                    <form>-->
+<!--                        <div class="row g-3">-->
+<!--                            <div class="col-12 col-sm-6">-->
+<!--                                <select class="form-select bg-light border-0" style="height: 55px;">-->
+<!--                                    <option selected>Select A Service</option>-->
+<!--                                    <option value="1">Service 1</option>-->
+<!--                                    <option value="2">Service 2</option>-->
+<!--                                    <option value="3">Service 3</option>-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                            <div class="col-12 col-sm-6">-->
+<!--                                <select class="form-select bg-light border-0" style="height: 55px;">-->
+<!--                                    <option selected>Select Doctor</option>-->
+<!--                                    <option value="1">Doctor 1</option>-->
+<!--                                    <option value="2">Doctor 2</option>-->
+<!--                                    <option value="3">Doctor 3</option>-->
+<!--                                </select>-->
+<!--                            </div>-->
+<!--                            <div class="col-12 col-sm-6">-->
+<!--                                <input type="text" class="form-control bg-light border-0" placeholder="Your Name"-->
+<!--                                       style="height: 55px;">-->
+<!--                            </div>-->
+<!--                            <div class="col-12 col-sm-6">-->
+<!--                                <input type="email" class="form-control bg-light border-0" placeholder="Your Email"-->
+<!--                                       style="height: 55px;">-->
+<!--                            </div>-->
+<!--                            <div class="col-12 col-sm-6">-->
+<!--                                <div class="date" id="date1" data-target-input="nearest">-->
+<!--                                    <input type="text"-->
+<!--                                           class="form-control bg-light border-0 datetimepicker-input"-->
+<!--                                           placeholder="Appointment Date" data-target="#date1"-->
+<!--                                           data-toggle="datetimepicker"-->
+<!--                                           style="height: 55px;">-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="col-12 col-sm-6">-->
+<!--                                <div class="time" id="time1" data-target-input="nearest">-->
+<!--                                    <input type="text"-->
+<!--                                           class="form-control bg-light border-0 datetimepicker-input"-->
+<!--                                           placeholder="Appointment Time" data-target="#time1"-->
+<!--                                           data-toggle="datetimepicker"-->
+<!--                                           style="height: 55px;">-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="col-12">-->
+<!--                                <button class="btn btn-dark w-100 py-3" type="submit">Make Appointment</button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </form>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 </section>
-<!--<script>-->
-<!--    window.onload = function() {-->
-<!--        var serviceItems = document.querySelectorAll('.service-item');-->
-<!--        var totalCostElement = document.getElementById('total-cost');-->
-<!--        var totalCost = 0;-->
-
-<!--        serviceItems.forEach(function(item) {-->
-<!--            var cost = parseFloat(item.querySelector('.service-cost').textContent.replace('$', ''));-->
-<!--            totalCost += cost;-->
-<!--        });-->
-
-<!--        totalCostElement.textContent = '$' + totalCost.toFixed(2);-->
-<!--    };-->
-<!--</script>-->
 {% endblock%}

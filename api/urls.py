@@ -1,15 +1,13 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from api.views import PatientsAPIList, AppointmentsAPIList
+from api.views import PatientsAPIList, AppointmentsAPIList, AppointmentAPIView
 
 app_name = 'api'
 
-# router = routers.SimpleRouter()
-# router.register(r'patients', PatientsViewSet)
-
 
 urlpatterns = [
-    path('patients/', PatientsAPIList.as_view(), name='patients'),
+    path('patients_list/', PatientsAPIList.as_view(), name='patients_list'),
     path('appointments/', AppointmentsAPIList.as_view(), name='all_appointments'),
+    path('appointment/<int:pk>', AppointmentAPIView.as_view(), name='appointment_view'),
 ]

@@ -13,6 +13,7 @@
                             <th class="border-gray-300 border-top py-3">Фото</th>
                             <th class="border-gray-300 border-top py-3">Фамилия Имя</th>
                             <th class="border-gray-300 border-top py-3">Лечащий врач</th>
+                            <th class="border-gray-300 border-top py-3">Клиника</th>
                             <th class="border-gray-300 border-top py-3">Действие</th>
                         </tr>
                         </thead>
@@ -23,6 +24,7 @@
                                 <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="{{ patient.photo.url }}" alt="{{ patient }}" style="min-width: 50px" width="50"></td>
                                 <td class="align-middle py-3"><a href="#">{{ patient.full_name }}</a></td>
                                 <td class="align-middle py-3"><a href="#">{{ patient.doctor }}</a></td>
+                                <td class="align-middle py-3"><a href="#">{{ patient.clinic }}</a></td>
                                 <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm"
                                                                  href="{% url 'core:patient_detail' patient.pk %}">Детально</a></td>
                             </tr>
@@ -32,7 +34,7 @@
                 </div>
             </div>
             <div class="col-lg-3 order-1 order-lg-2">
-                <h3 class="h4 text-uppercase lined mb-4">Список пациентов</h3>
+                <h3 class="h4 text-uppercase lined mb-4">Фильтр пациентов</h3>
                 <nav class="nav flex-column nav-pills">
                     <a class="nav-link text-sm active" href="customer-orders.html" id="allPatientsLink">
                         <i class="me-2 fas fa-list"></i><span>Все пациенты</span></a>
@@ -71,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function() {
         updateFilterAndList('doc=all&');
 
         // Отправляем AJAX запрос на ваше API для получения всех пациентов
-        fetch("{% url 'api:patients' %}")
+        fetch("{% url 'api:patients_list' %}")
             .then(response => response.json())
             .then(data => {
                 // Обновляем список пациентов на странице
@@ -92,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
         updateFilterAndList('doc=' + doctorId + '&');
 
         // Отправляем AJAX запрос на ваше API для получения пациентов по текущему доктору
-        fetch("{% url 'api:patients'%}?doc=" + doctorId + "&")  // Замените 1 на нужный вам pk
+        fetch("{% url 'api:patients_list'%}?doc=" + doctorId + "&")  // Замените 1 на нужный вам pk
             .then(response => response.json())
             .then(data => {
                 // Обновляем список пациентов на странице
@@ -115,7 +117,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="${patient.photo}" alt="${patient.name}" style="min-width: 50px" width="50"></td>
                     <td class="align-middle py-3"><a href="#">${patient.full_name}</a></td>
                     <td class="align-middle py-3"><a href="#">${patient.doctor_full_name}</a></td>
-                    <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm" href="#">Детально</a></td>
+                    <td class="align-middle py-3"><a href="#">${patient.clinic_name}</a></td>
+                    <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm" href="${patient.url}">Детально</a></td>
                 </tr>`;
             patientsTableBody.innerHTML += row;
         });

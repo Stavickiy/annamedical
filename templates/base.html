@@ -99,7 +99,11 @@
                 <a href="{% url 'core:patients' %}" class="nav-item nav-link">Пациенты</a>
             </div>
             <button type="button" class="btn text-dark" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></button>
-            <a href="appointment.html" class="btn btn-primary py-2 px-4 ms-3">Создать запись</a>
+            {% if user.is_authenticated %}
+            <a href="appointment.html" class="btn btn-primary py-2 px-4 ms-3">{{ user.doctor.full_name }}</a>
+            {% else %}
+            <a href="appointment.html" class="btn btn-primary py-2 px-4 ms-3">Вход</a>
+            {% endif %}
         </div>
     </nav>
     <!-- Navbar End -->

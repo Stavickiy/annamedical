@@ -47,6 +47,6 @@ class PatientDetail(LoginRequiredMixin, DetailView):
         prefetched_appointments = Appointment.objects.prefetch_related('services').filter(
             id__in=appointments.values_list('id', flat=True)).order_by('-start')
 
-        context['appointments'] = list(patient.appointments.all().order_by('-start'))
+        context['appointments'] = list(patient.appointments.all().prefetch_related('photos').order_by('-start'))
         context['three_appointments'] = prefetched_appointments[:3]
         return context

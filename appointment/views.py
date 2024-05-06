@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView
 
+from appointment.forms import AppointmentForm
 from appointment.models import Appointment
 from core.models import Service
 from django.utils import timezone
@@ -23,6 +24,16 @@ class Appointments(ListView):
         return appointments
 
 
+class AppointmentUpdateView(UpdateView):
+    model = Appointment
+    form_class = AppointmentForm
+    template_name = 'appointment_update.html'  # Предположим, что у вас есть шаблон appointment_update.html
+
+    def get_success_url(self):
+        # Перенаправление после успешного обновления записи
+        return reverse('appointment_detail', kwargs={'pk': self.object.pk})
+
+
 class AppointmentDitail(DetailView):
     model = Appointment
     template_name = 'appointment_detail.html'
@@ -39,3 +50,4 @@ class AppointmentDitail(DetailView):
     def get_object(self, queryset=None):
         appointment = get_object_or_404(Appointment, pk=self.kwargs['app_id'])
         return appointment
+

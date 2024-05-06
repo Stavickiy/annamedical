@@ -7,14 +7,22 @@ from django.urls import reverse
 
 class PatientSerializer(serializers.ModelSerializer):
     doctor_full_name = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+    clinic_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Patient
         fields = ('id','first_name', 'last_name', 'full_name', 'photo', 'date_of_birth',
-                  'gender', 'phone_number', 'medical_history', 'doctor_full_name', 'doctor')
+                  'gender', 'phone_number', 'medical_history', 'doctor_full_name', 'doctor', 'url', 'clinic_name')
 
     def get_doctor_full_name(self, obj):
         return obj.doctor.full_name()
+
+    def get_url(self, obj):
+        return reverse('core:patient_detail', kwargs={'pk': obj.id})
+
+    def get_clinic_name(self, obj):
+        return obj.clinic.name
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -47,3 +55,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj):
         return reverse('appointment:appointment_detail', kwargs={'app_id': obj.id})
+
+
+class AppointmentDetailSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Appointment
+        fields = '__all__'
