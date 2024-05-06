@@ -13,31 +13,49 @@
                             <th class="border-gray-300 border-top py-3">Фото</th>
                             <th class="border-gray-300 border-top py-3">Фамилия Имя</th>
                             <th class="border-gray-300 border-top py-3">Лечащий врач</th>
+                            <th class="border-gray-300 border-top py-3">Клиника</th>
                             <th class="border-gray-300 border-top py-3">Действие</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for patient in patients %}
-                            <tr class="text-sm">
-                                <th class="align-middle py-3">{{ forloop.counter }}</th>
-                                <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="{{ patient.photo.url }}" alt="{{ patient }}" style="min-width: 50px" width="50"></td>
-                                <td class="align-middle py-3"><a href="#">{{ patient.full_name }}</a></td>
-                                <td class="align-middle py-3"><a href="#">{{ patient.doctor }}</a></td>
-                                <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm"
-                                                                 href="{% url 'core:patient_detail' patient.pk %}">Детально</a></td>
-                            </tr>
+                        <tr class="text-sm">
+                            <th class="align-middle py-3">{{ forloop.counter }}</th>
+                            <td class="align-middle py-3"><img class="img-fluid flex-shrink-0"
+                                                               src="{{ patient.photo.url }}" alt="{{ patient }}"
+                                                               style="min-width: 50px" width="50"></td>
+                            <td class="align-middle py-3"><a href="#">{{ patient.full_name }}</a></td>
+                            <td class="align-middle py-3"><a href="#">{{ patient.doctor }}</a></td>
+                            <td class="align-middle py-3"><a href="#">{{ patient.clinic }}</a></td>
+                            <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm"
+                                                             href="{% url 'core:patient_detail' patient.pk %}">Детально</a>
+                            </td>
+                        </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-lg-3 order-1 order-lg-2">
-                <h3 class="h4 text-uppercase lined mb-4">Список пациентов</h3>
+                <h3 class="h4 text-uppercase lined mb-4">Фильтр пациентов</h3>
                 <nav class="nav flex-column nav-pills">
-                    <a class="nav-link text-sm active" href="customer-orders.html" id="allPatientsLink">
-                        <i class="me-2 fas fa-list"></i><span>Все пациенты</span></a>
-                    <a class="nav-link text-sm" href="#" id="myPatientsLink">
-                        <i class="me-2 fas fa-heart"></i><span>Мои пациенты</span></a>
+                    <form id="patientFilterForm">
+                        <select class="form-select form-select-sm mb-1" aria-label="Large select example" id="doctorId" name="doctorId">
+                            <option selected>Доктор</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}">{{ doctor.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="form-select form-select-sm mb-1" aria-label="Small select example" id="clinicId" name="clinicId">
+                            <option selected>Клиника</option>
+                            {% for clinic in clinics %}
+                            <option value="{{ clinic.id }}">{{ clinic.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="mt-3 text-center">
+                            <button type="submit" class="btn btn-primary">Применить фильтр</button>
+                        </div>
+                    </form>
                 </nav>
             </div>
         </div>
@@ -45,81 +63,65 @@
 </section>
 
 <script>
-var doctorId = {{ doctor_id }};
+
+function updatePatientsList(data) {
+    // Очищаем текущий список пациентов
+    var patientsTableBody = document.querySelector("#patientsTable tbody");
+    patientsTableBody.innerHTML = "";
+
+    // Добавляем новые строки с пациентами в таблицу
+    data.forEach(function(patient, index) {
+        var row = `
+            <tr class="text-sm">
+                <th class="align-middle py-3">${index + 1}</th>
+                <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="${patient.photo}" alt="${patient.name}" style="min-width: 50px" width="50"></td>
+                <td class="align-middle py-3"><a href="#">${patient.full_name}</a></td>
+                <td class="align-middle py-3"><a href="#">${patient.doctor_full_name}</a></td>
+                <td class="align-middle py-3"><a href="#">${patient.clinic_name}</a></td>
+                <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm" href="${patient.url}">Детально</a></td>
+            </tr>`;
+        patientsTableBody.innerHTML += row;
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
-    // Функция для обновления URL и списка пациентов
-    function updateFilterAndList(filterParams) {
-        // Формируем новый URL с параметрами фильтрации
-        var newUrl = window.location.pathname + '?';
-        newUrl += filterParams;
-        // Убираем последний символ '&'
-        newUrl = newUrl.slice(0, -1);
+    document.getElementById("patientFilterForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Предотвращаем отправку формы по умолчанию
 
-        // Изменяем URL без перезагрузки страницы
-        history.pushState(filterParams, '', newUrl);
-    }
+        // Получаем значения выбранных доктора и клиники
+        var doctorId = document.getElementById("doctorId").value;
+        var clinicId = document.getElementById("clinicId").value;
 
-    // Обработчик нажатия на ссылку "Все пациенты"
-    document.getElementById("allPatientsLink").addEventListener("click", function(event) {
-        event.preventDefault(); // Предотвращаем переход по ссылке
-        // Снимаем класс active у текущей активной ссылки
-        document.querySelector(".nav-link.active").classList.remove("active");
-        // Добавляем класс active для ссылки "Все пациенты"
-        this.classList.add("active");
+        // Формируем URL с параметрами фильтрации
+        var apiUrl = "http://127.0.0.1:8000/api/patients_list/?";
+        if (doctorId) {
+            apiUrl += "doctor_id=" + doctorId + "&";
+        }
+        if (clinicId) {
+            apiUrl += "clinic_id=" + clinicId + "&";
+        }
 
-        // Вызываем функцию для обновления URL и списка пациентов с параметром 'all'
-        updateFilterAndList('doc=all&');
-
-        // Отправляем AJAX запрос на ваше API для получения всех пациентов
-        fetch("{% url 'api:patients' %}")
+        // Отправляем запрос к API
+        fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
                 // Обновляем список пациентов на странице
                 updatePatientsList(data);
+
+                // Обновляем URL без перезагрузки страницы
+                var newUrl = window.location.pathname + "?";
+                if (doctorId != 'Доктор') {
+                    newUrl += "doctor_id=" + doctorId + "&";
+                }
+                if (clinicId != 'Клиника') {
+                    newUrl += "clinic_id=" + clinicId + "&";
+                }
+                newUrl = newUrl.slice(0, -1); // Убираем последний символ "&"
+                history.pushState({}, "", newUrl);
             })
             .catch(error => console.error("Ошибка при отправке запроса:", error));
     });
-
-    // Обработчик нажатия на ссылку "Мои пациенты"
-    document.getElementById("myPatientsLink").addEventListener("click", function(event) {
-        event.preventDefault(); // Предотвращаем переход по ссылке
-        // Снимаем класс active у текущей активной ссылки
-        document.querySelector(".nav-link.active").classList.remove("active");
-        // Добавляем класс active для ссылки "Мои пациенты"
-        this.classList.add("active");
-
-        // Вызываем функцию для обновления URL и списка пациентов с параметром 'doctor'
-        updateFilterAndList('doc=' + doctorId + '&');
-
-        // Отправляем AJAX запрос на ваше API для получения пациентов по текущему доктору
-        fetch("{% url 'api:patients'%}?doc=" + doctorId + "&")  // Замените 1 на нужный вам pk
-            .then(response => response.json())
-            .then(data => {
-                // Обновляем список пациентов на странице
-                updatePatientsList(data);
-            })
-            .catch(error => console.error("Ошибка при отправке запроса:", error));
-    });
-
-    // Функция для обновления списка пациентов на странице
-    function updatePatientsList(data) {
-        // Очищаем текущий список пациентов
-        var patientsTableBody = document.querySelector("#patientsTable tbody");
-        patientsTableBody.innerHTML = "";
-
-        // Добавляем новые строки с пациентами в таблицу
-        data.forEach(function(patient, index) {
-            var row = `
-                <tr class="text-sm">
-                    <th class="align-middle py-3">${index + 1}</th>
-                    <td class="align-middle py-3"><img class="img-fluid flex-shrink-0" src="${patient.photo}" alt="${patient.name}" style="min-width: 50px" width="50"></td>
-                    <td class="align-middle py-3"><a href="#">${patient.full_name}</a></td>
-                    <td class="align-middle py-3"><a href="#">${patient.doctor_full_name}</a></td>
-                    <td class="align-middle py-3"><a class="btn btn-outline-primary btn-sm" href="#">Детально</a></td>
-                </tr>`;
-            patientsTableBody.innerHTML += row;
-        });
-    }
 });
+
 </script>
 {% endblock %}

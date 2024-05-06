@@ -13,8 +13,9 @@
                             <th class="border-gray-300 border-top py-3 ">Имя Фамилия</th>
                             <th class="border-gray-300 border-top py-3">Дата записи</th>
                             <th class="border-gray-300 border-top py-3">Время записи</th>
-                            <th class="border-gray-300 border-top py-3">Тип</th>
+                            <th class="border-gray-300 border-top py-3">Статус</th>
                             <th class="border-gray-300 border-top py-3">Лечащий врач</th>
+                            <th class="border-gray-300 border-top py-3">Клиника</th>
                             <th class="border-gray-300 border-top py-3">Действие</th>
                         </tr>
                         </thead>
@@ -25,8 +26,13 @@
                             <td class="align-middle py-3"><a href="#">{{ appointment.patient }}</a></td>
                             <td class="align-middle py-3">{{ appointment.start.date }}</td>
                             <td class="align-middle py-3">{{ appointment.start.time }} - {{ appointment.end.time }}</td>
-                            <td class="align-middle py-3">{{ appointment.get_type_display }}</td>
+                            <td><span class="{% if appointment.status == 'approved' %}badge fw-light text-uppercase bg-info
+                                                                {% elif appointment.status == 'completed' %}badge fw-light text-uppercase bg-success
+                                                                {% elif appointment.status == 'planned' %}badge fw-light text-uppercase bg-primary
+                                                                {% elif appointment.status == 'canceled' %}badge fw-light text-uppercase bg-danger
+                                                                {% endif %}">{{appointment.get_status_display}}</span></td>
                             <td class="align-middle py-3"><a href="#">{{ appointment.doctor }}</a></td>
+                            <td class="align-middle py-3">{{ appointment.clinic }}</td>
                             <td class="align-middle py-3">
                                 <a class="btn btn-outline-primary btn-sm"
                                    href="{% url 'appointment:appointment_detail' appointment.pk %}">Детально</a>
@@ -38,134 +44,145 @@
                 </div>
             </div>
             <div class="col-lg-3 order-1 order-lg-2">
-                <h3 class="h4 text-uppercase lined mb-4">Запись на приём</h3>
+                <h3 class="h4 text-uppercase lined mb-4">Фильтр записей</h3>
                 <nav class="nav flex-column nav-pills">
-                    <a class="nav-link text-sm active" href="#" id="allAppointmentsLink">
-                        <i class="me-2 fas fa-list"></i><span>Все записи</span></a>
-                    <a class="nav-link text-sm" href="#" id="myAppointmentsLink">
-                        <i class="me-2 fas fa-heart"></i><span>Мои записи</span></a>
+                    <form id="appointmentFilterForm">
+                        <select class="form-select form-select-sm mb-1" aria-label="Large select example" id="doctorId"
+                                name="doctorId">
+                            <option selected>Доктор</option>
+                            {% for doctor in doctors %}
+                            <option value="{{ doctor.id }}">{{ doctor.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="form-select form-select-sm mb-1" aria-label="Small select example" id="clinicId"
+                                name="clinicId">
+                            <option selected>Клиника</option>
+                            {% for clinic in clinics %}
+                            <option value="{{ clinic.id }}">{{ clinic.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="start_date">С:</label>
+                                    <input type="date" id="start_date" name="start_date" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="end_date">По:</label>
+                                    <input type="date" id="end_date" name="end_date" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <button type="submit" class="btn btn-primary">Применить фильтр</button>
+                        </div>
+                    </form>
                 </nav>
                 <hr>
-                <form action="#" method="GET">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="start_date">С:</label>
-                                <input type="date" id="start_date" name="start_date" class="form-control">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="end_date">По:</label>
-                                <input type="date" id="end_date" name="end_date" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary" style="margin: 5px;">Применить фильтр</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </section>
 
 <script>
-    var doctorId = {{ doctor_id }};
-    document.addEventListener("DOMContentLoaded", function() {
-        // Получаем сегодняшнюю дату
-        var today = new Date().toISOString().split('T')[0];
-        // Устанавливаем значение по умолчанию для поля "С" (start_date)
-        document.getElementById("start_date").value = today;
+function updateAppointmentsList(data) {
+    // Очищаем текущий список записей
+    var appointmentsTableBody = document.querySelector("#appointmentsTable tbody");
+    appointmentsTableBody.innerHTML = "";
 
-        // Получаем дату через 7 дней
-        var endDate = new Date();
-        endDate.setDate(endDate.getDate() + 7);
-        var nextWeek = endDate.toISOString().split('T')[0];
-        // Устанавливаем значение по умолчанию для поля "По" (end_date)
-        document.getElementById("end_date").value = nextWeek;
+    // Добавляем новые строки с записями в таблицу
+    data.forEach(function(appointment, index) {
+        // Определяем класс статуса в зависимости от значения статуса
+        var statusClass = '';
+        switch (appointment.get_status_display) {
+            case 'Подтверждено':
+                statusClass = 'bg-info';
+                break;
+            case 'Завершено':
+                statusClass = 'bg-success';
+                break;
+            case 'Запланировано':
+                statusClass = 'bg-primary';
+                break;
+            case 'Отменено':
+                statusClass = 'bg-danger';
+                break;
+            default:
+                break;
+        }
+
+        var row = `
+            <tr class="text-sm">
+                <th class="align-middle py-3">${index + 1}</th>
+                <td class="align-middle py-3"><a href="#">${appointment.patient_full_name}</a></td>
+                <td class="align-middle py-3">${appointment.start_date}</td>
+                <td class="align-middle py-3">${appointment.start_time} - ${appointment.end_time}</td>
+                <td><span class="badge fw-light text-uppercase ${statusClass}">${appointment.get_status_display}</span></td>
+                <td class="align-middle py-3"><a href="#">${appointment.doctor_full_name}</a></td>
+                <td class="align-middle py-3">${appointment.clinic_name}</td>
+                <td class="align-middle py-3">
+                    <a class="btn btn-outline-primary btn-sm" href="${appointment.url}">Детально</a>
+                </td>
+            </tr>`;
+        appointmentsTableBody.innerHTML += row;
     });
+}
 
-    document.addEventListener("DOMContentLoaded", function() {
-    // Функция для обновления URL и списка пациентов
-    function updateFilterAndList(filterParams) {
-        // Формируем новый URL с параметрами фильтрации
-        var newUrl = window.location.pathname + '?';
-        newUrl += filterParams;
-        // Убираем последний символ '&'
-        newUrl = newUrl.slice(0, -1);
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("appointmentFilterForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Предотвращаем отправку формы по умолчанию
 
-        // Изменяем URL без перезагрузки страницы
-        history.pushState(filterParams, '', newUrl);
-    }
+        // Получаем значения выбранных доктора, клиники и дат
+        var doctorId = document.getElementById("doctorId").value;
+        var clinicId = document.getElementById("clinicId").value;
+        var startDate = document.getElementById("start_date").value;
+        var endDate = document.getElementById("end_date").value;
 
-    // Обработчик нажатия на ссылку "Все пациенты"
-    document.getElementById("allAppointmentsLink").addEventListener("click", function(event) {
-        event.preventDefault(); // Предотвращаем переход по ссылке
-        // Снимаем класс active у текущей активной ссылки
-        document.querySelector(".nav-link.active").classList.remove("active");
-        // Добавляем класс active для ссылки "Все пациенты"
-        this.classList.add("active");
+        // Формируем URL с параметрами фильтрации
+        var apiUrl = "http://127.0.0.1:8000/api/appointments/?";
+        if (doctorId != 'Доктор') {
+            apiUrl += "doctor_id=" + doctorId + "&";
+        }
+        if (clinicId != 'Клиника') {
+            apiUrl += "clinic_id=" + clinicId + "&";
+        }
+        if (startDate) {
+            apiUrl += "start_date=" + startDate + "&";
+        }
+        if (endDate) {
+            apiUrl += "end_date=" + endDate + "&";
+        }
 
-        // Вызываем функцию для обновления URL и списка пациентов с параметром 'all'
-        updateFilterAndList('doc=all&');
+        // Обновляем URL без перезагрузки страницы
+        var newUrl = window.location.pathname + "?";
+        if (doctorId != 'Доктор') {
+            newUrl += "doctor_id=" + doctorId + "&";
+        }
+        if (clinicId != 'Клиника') {
+            newUrl += "clinic_id=" + clinicId + "&";
+        }
+        if (startDate) {
+            newUrl += "start_date=" + startDate + "&";
+        }
+        if (endDate) {
+            newUrl += "end_date=" + endDate + "&";
+        }
+        newUrl = newUrl.slice(0, -1); // Убираем последний символ "&"
+        history.pushState({}, "", newUrl);
 
-        // Отправляем AJAX запрос на ваше API для получения всех пациентов
-        fetch("{% url 'api:all_appointments' %}")
+        // Отправляем запрос к API
+        fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                // Обновляем список пациентов на странице
+                // Обновляем список приемов на странице
                 updateAppointmentsList(data);
             })
             .catch(error => console.error("Ошибка при отправке запроса:", error));
     });
-
-    // Обработчик нажатия на ссылку "Мои пациенты"
-    document.getElementById("myAppointmentsLink").addEventListener("click", function(event) {
-        event.preventDefault(); // Предотвращаем переход по ссылке
-        // Снимаем класс active у текущей активной ссылки
-        document.querySelector(".nav-link.active").classList.remove("active");
-        // Добавляем класс active для ссылки "Мои пациенты"
-        this.classList.add("active");
-
-        // Вызываем функцию для обновления URL и списка пациентов с параметром 'doctor'
-        updateFilterAndList('doc=' + doctorId + '&');
-
-        // Отправляем AJAX запрос на ваше API для получения пациентов по текущему доктору
-        fetch("{% url 'api:all_appointments' %}?doc=" + doctorId + "&")
-            .then(response => response.json())
-            .then(data => {
-                // Обновляем список пациентов на странице
-                updateAppointmentsList(data);
-            })
-            .catch(error => console.error("Ошибка при отправке запроса:", error));
-    });
-
-    // Функция для обновления списка пациентов на странице
-    function updateAppointmentsList(data) {
-        // Очищаем текущий список пациентов
-        var appointmentsTableBody = document.querySelector("#appointmentsTable tbody");
-        appointmentsTableBody.innerHTML = "";
-
-        // Добавляем новые строки с пациентами в таблицу
-        data.forEach(function(appointment, index) {
-            var row = `
-                <tr class="text-sm">
-                    <th class="align-middle py-3">${index + 1}</th>
-                    <td class="align-middle py-3"><a href="#">${appointment.patient_full_name}</a></td>
-                    <td class="align-middle py-3">${appointment.start_date}</td>
-                    <td class="align-middle py-3">${appointment.start_time} - ${appointment.end_time}</td>
-                    <td class="align-middle py-3">${appointment.get_type_display}</td>
-                    <td class="align-middle py-3"><a href="#">${appointment.doctor_full_name}</a></td>
-                    <td class="align-middle py-3">
-                        <a class="btn btn-outline-primary btn-sm"
-                           href="${appointment.url}">Детально</a>
-                    </td>
-                </tr>`;
-            appointmentsTableBody.innerHTML += row;
-        });
-    }
 });
+
 
 </script>
 {% endblock %}

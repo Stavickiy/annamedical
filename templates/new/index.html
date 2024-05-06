@@ -1,0 +1,112 @@
+{% extends 'new/base.html' %}
+{% block content %}
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Ежедневник</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active">Ежедневник</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+        <div class="row">
+
+            <!-- Left side columns -->
+            <div class="col-lg-8 order-2 order-lg-1">
+                <div class="row">
+
+                    <!-- Recent Sales -->
+                    <div class="col-12">
+                        <div class="card recent-sales overflow-auto">
+                            <div class="card-body">
+                                <h5 class="card-title">Записи пациентов <span>| Неделя</span></h5>
+
+                                <table class="table table-borderless datatable">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Дата</th>
+                                        <th scope="col">Время</th>
+                                        <th scope="col">Пациент</th>
+                                        <th scope="col">Клиника</th>
+                                        <th scope="col">Процедура</th>
+                                        <th scope="col">Статус</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for appointment in appointments_week %}
+                                    <tr>
+                                        <th scope="row">{{appointment.start.date|date:"D d-m"}}</th>
+                                        <td>{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}</td>
+                                        <td><a href="{% url 'core:patient_detail' appointment.patient.pk %}">{{ appointment.patient }}</a></td>
+                                        <th scope="row">{{appointment.clinic}}</th>
+                                        <td><a href="{% url 'appointment:appointment_detail' appointment.pk %}" class="text-primary">{% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}</a></td>
+                                        <td><span class="badge bg-{% if appointment.status == 'approved' %}info
+                                                                {% elif appointment.status == 'completed' %}success
+                                                                {% elif appointment.status == 'planned' %}primary
+                                                                {% elif appointment.status == 'canceled' %}danger
+                                                                {% endif %}">{{appointment.get_status_display}}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    </div><!-- End Recent Sales -->
+
+
+                </div>
+            </div><!-- End Left side columns -->
+
+            <!-- Right side columns -->
+            <div class="col-lg-4 col-12 order-1 order-lg-2">
+
+                <!-- Recent Activity -->
+                <div class="card">
+
+                    <div class="card-body">
+                        <h5 class="card-title">Записи пациентов <span>| Сегодня</span></h5>
+
+                        <div class="activity">
+                            {% for appointment in appointments %}
+                            <div class="activity-item d-flex">
+                                <div class="activite-label">{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}<br>
+                                    {{appointment.clinic}}
+                                </div>
+                                <i class="bi bi-circle-fill activity-badge text-{% if appointment.status == 'approved' %}info
+                                                                {% elif appointment.status == 'completed' %}success
+                                                                {% elif appointment.status == 'planned' %}primary
+                                                                {% elif appointment.status == 'canceled' %}danger
+                                                                {% endif %} align-self-start"></i>
+                                <div class="activity-content">
+                                    <span class=" fw-bold text-dark text-uppercase">{{ appointment.patient }}</span><br>
+                                    Доктор: {{appointment.doctor}}
+                                    <br>
+                                    {% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}
+                                    <br>
+                                    <span class="{% if appointment.status == 'approved' %}badge fw-light text-uppercase bg-info
+                                                                {% elif appointment.status == 'completed' %}badge fw-light text-uppercase bg-success
+                                                                {% elif appointment.status == 'planned' %}badge fw-light text-uppercase bg-primary
+                                                                {% elif appointment.status == 'canceled' %}badge fw-light text-uppercase bg-danger
+                                                                {% endif %}">{{appointment.get_status_display}}</span>
+                                </div>
+                            </div><!-- End activity item-->
+                            {% endfor %}
+
+
+                        </div>
+
+                    </div>
+                </div><!-- End Recent Activity -->
+
+            </div><!-- End Right side columns -->
+
+        </div>
+    </section>
+
+</main><!-- End #main -->
+{% endblock %}

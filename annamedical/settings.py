@@ -71,6 +71,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'users.context_processors.user_context_processor',
+                'users.context_processors.count_appointments_processor',
             ],
         },
     },

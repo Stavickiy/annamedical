@@ -9,7 +9,7 @@
                 Статус: <strong class="{% if appointment.status == 'canceled' %} text-danger {% endif %}">{{appointment.get_status_display}}</strong>
                 <br>
                 Доктор: <strong>{{appointment.doctor}}</strong><br>
-                Тип записи: <strong>{{ appointment.get_type_display }}</strong><br>
+                Тип записи: <strong>{{ appointment.type }}</strong><br>
                 Примечание: <strong>{{appointment.description}}</strong></p>
             <div class="row">
                 <div class="col-lg-8 mb-4 mb-lg-0">
@@ -18,6 +18,9 @@
                         <table class="table text-nowrap">
                             <thead class="bg-light">
                             <tr>
+                                <th class="border-0 p-3" scope="col"><strong
+                                        class="text-sm text-uppercase">#</strong>
+                                </th>
                                 <th class="border-0 p-3" scope="col"><strong
                                         class="text-sm text-uppercase">Процедура</strong>
                                 </th>
@@ -30,6 +33,9 @@
                             <tbody class="border-0">
                             {% for service in services %}
                             <tr>
+                                <td class="p-3 align-middle border-light">
+                                    <p class="mb-0 small">{{ forloop.counter }}</p>
+                                </td>
                                 <td class="p-3 align-middle border-light">
                                     <p class="mb-0 small">{{ service.name }}</p>
                                 </td>
@@ -46,11 +52,13 @@
                     <!-- CART NAV-->
                     <div class="bg-light px-4 py-3">
                         <div class="row align-items-center text-center">
+                            {% if appointment.get_status_display != 'Завершено' %}
                             <div class="col-md-6 text-md-end">
                                 <a class="btn btn-outline-dark btn-sm"
-                                   href="checkout.html">Редактировать запись
+                                   href="{% url 'appointment:appointment_update' appointment.pk %}">Редактировать запись
                                 </a>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -82,20 +90,31 @@
                 </div>
             </div>
         </div>
+        <!-- Pricing Start -->
+        <div class="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="container">
+                <div class="row g-5">
+                    <div class="col-lg-7">
+                        <div class="section-title mb-4">
+                            <h5 class="position-relative d-inline-block text-primary text-uppercase">Фото</h5>
+                        </div>
+                        <div class="owl-carousel price-carousel wow zoomIn" data-wow-delay="0.9s">
+                            {% for photo in appointment.photos.all %}
+                            <div class="position-relative">
+                                <div class="img-container-top">
+                                    <a href="{{ photo.photo.url }}">
+                                        <img class="img-fluid rounded" style="max-width: auto; max-height: 200px;"
+                                             src="{{ photo.photo.url }}" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Pricing End -->
     </div>
 </section>
-<!--<script>-->
-<!--    window.onload = function() {-->
-<!--        var serviceItems = document.querySelectorAll('.service-item');-->
-<!--        var totalCostElement = document.getElementById('total-cost');-->
-<!--        var totalCost = 0;-->
-
-<!--        serviceItems.forEach(function(item) {-->
-<!--            var cost = parseFloat(item.querySelector('.service-cost').textContent.replace('$', ''));-->
-<!--            totalCost += cost;-->
-<!--        });-->
-
-<!--        totalCostElement.textContent = '$' + totalCost.toFixed(2);-->
-<!--    };-->
-<!--</script>-->
 {% endblock%}

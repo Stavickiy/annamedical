@@ -1,7 +1,7 @@
 from django.db import models
 
 from annamedical import settings
-from core.models import Patient, Doctor, Service
+from core.models import Patient, Doctor, Service, Clinic
 
 
 class AppointmentStatus(models.TextChoices):
@@ -25,10 +25,13 @@ class Appointment(models.Model):
     description = models.TextField(blank=True)
     status = models.CharField(max_length=50, choices=AppointmentStatus.choices)
     services = models.ManyToManyField(Service, related_name='appointments', blank=True)
+    clinic = models.ForeignKey(Clinic, on_delete=models.PROTECT, related_name='appointments')
 
     class Meta:
         ordering = ['start']
 
-    def get_url_for_api(self):
 
-        return
+
+class Photo(models.Model):
+    photo = models.ImageField(upload_to='appointments_photo/', blank=True)
+    appointment = models.ForeignKey(Appointment, on_delete=models.PROTECT, related_name='photos')

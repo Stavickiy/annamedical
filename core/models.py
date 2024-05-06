@@ -51,5 +51,11 @@ class Service(models.Model):
     name = models.CharField(max_length=100)
     cost = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ('name',)
+
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         return self.name
