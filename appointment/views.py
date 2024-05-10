@@ -46,6 +46,16 @@ class AppointmentUpdateView(UpdateView):
         return context
 
 
+class AppointmentUpdateView(UpdateView):
+    model = Appointment
+    form_class = AppointmentForm
+    template_name = 'appointment_update.html'  # Предположим, что у вас есть шаблон appointment_update.html
+
+    def get_success_url(self):
+        # Перенаправление после успешного обновления записи
+        return reverse('appointment_detail', kwargs={'pk': self.object.pk})
+
+
 class AppointmentDitail(DetailView):
     model = Appointment
     template_name = 'appointment_detail.html'
