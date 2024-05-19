@@ -1,11 +1,20 @@
 from django.db import models
 
+
+class Clinic(models.Model):
+    name = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.name
+
+
 class Doctor(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=50)
     is_main = models.BooleanField(default=False, blank=True)
     photo = models.ImageField(upload_to='doctors_photo/')
     specialization = models.CharField(max_length=200, default=0)
+    clinic = models.ManyToManyField(Clinic, related_name='doctors', blank=True)
 
     def full_name(self):
         return ' '.join((str(self.last_name), str(self.first_name)))
@@ -17,13 +26,6 @@ class Doctor(models.Model):
 class GenderType(models.TextChoices):
     FEMALE = 'female', 'Женский'
     MALE = 'male', 'Мужской'
-
-
-class Clinic(models.Model):
-    name = models.CharField(max_length=30)
-
-    def __str__(self):
-        return self.name
 
 
 class Patient(models.Model):
