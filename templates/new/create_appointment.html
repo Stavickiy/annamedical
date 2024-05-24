@@ -1,0 +1,178 @@
+{% extends 'new/base.html' %}
+{% block content %}
+<!-- Bootstrap CSS -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery и Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Модальное окно -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Успех</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Запись успешно создана.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="redirectButton">Перейти к деталям</button>
+            </div>
+        </div>
+    </div>
+</div>
+<main id="main" class="main">
+    <!-- Bootstrap CSS -->
+    <section class="section">
+        <div class="row" style="justify-content: center;">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Запись пациента</h5>
+                        <!-- Profile Edit Form -->
+                        <form id="patient-form" enctype="multipart/form-data" action="{% url 'api:create_appointment' %}">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                                <label for="first_name" class="col-md-4 col-lg-3 col-form-label">Имя*</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="first_name" type="text" class="form-control" id="first_name" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="last_name" class="col-md-4 col-lg-3 col-form-label">Фамилия*</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="last_name" type="text" class="form-control" id="last_name" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Номер телефона*</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="phone_number" type="text" class="form-control" id="Phone" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-md-4 col-lg-3 col-form-label">Лечащий врач*</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <select class="form-select" name="doctor" aria-label="Default select example" id="doctor" required>
+                                        <option selected disabled value="">Доктор</option>
+                                        {% for doctor in doctors %}
+                                        <option value="{{ doctor.id }}">{{ doctor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-md-4 col-lg-3 col-form-label">Клиника*</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <select class="form-select" name="clinic" aria-label="Default select example" id="clinic" required>
+                                        <option selected disabled value="">Клиника</option>
+                                        {% for clinic in clinics %}
+                                        <option value="{{ clinic.id }}">{{ clinic }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="date_of_birth" class="col-md-4 col-lg-3 col-form-label">Дата рождения</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="date_of_birth" id="date_of_birth" type="date" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="city" class="col-md-4 col-lg-3 col-form-label">Город проживания</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="city" type="text" class="form-control" id="city">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="photo" class="col-md-4 col-lg-3 col-form-label">Фото пациента</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input class="form-control" type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="instagram" type="text" class="form-control" id="Instagram">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="Telegram" class="col-md-4 col-lg-3 col-form-label">Telegram</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input name="telegram" type="text" class="form-control" id="Telegram">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="medical_history" class="col-md-4 col-lg-3 col-form-label">Анамнез</label>
+                                <div class="col-md-8 col-lg-9">
+                                    <textarea name="medical_history" class="form-control" id="medical_history" style="height: 100px"></textarea>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary" id="submit-button" disabled>Сохранить</button>
+                            </div>
+                        </form><!-- End Profile Edit Form -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('patient-form');
+    const submitButton = document.getElementById('submit-button');
+    const requiredFields = form.querySelectorAll('input[required], select[required]');
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const redirectButton = document.getElementById('redirectButton');
+
+    function checkFormValidity() {
+        let isValid = true;
+        requiredFields.forEach(field => {
+            if (!field.value.trim() || field.value === "") {
+                isValid = false;
+            }
+        });
+        submitButton.disabled = !isValid;
+    }
+
+    requiredFields.forEach(field => {
+        field.addEventListener('input', checkFormValidity);
+        field.addEventListener('change', checkFormValidity); // For select elements
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Ошибка при создании.');
+        })
+        .then(data => {
+            successModal.show();
+            redirectButton.addEventListener('click', function() {
+                window.location.href = `/patient_detail/${data.id}/`;
+            });
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    });
+
+    checkFormValidity(); // Initial check in case fields are pre-filled
+});
+</script>
+{% endblock %}

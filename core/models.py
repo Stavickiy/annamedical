@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 
@@ -31,9 +33,8 @@ class GenderType(models.TextChoices):
 class Patient(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=50)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(blank=True, null=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.PROTECT, related_name='patients')
-    gender = models.CharField(max_length=20, choices=GenderType.choices)
     phone_number = models.CharField(max_length=20)
     medical_history = models.TextField(blank=True)
     photo = models.ImageField(upload_to='patients_photo/', blank=True)
@@ -47,6 +48,12 @@ class Patient(models.Model):
 
     def full_name(self):
         return ' '.join((str(self.last_name), str(self.first_name)))
+
+    def birthday(self):
+        if self.date_of_birth:
+            return self.date_of_birth.strftime('%Y-%m-%d')
+        else:
+            return None
 
 
 class Service(models.Model):

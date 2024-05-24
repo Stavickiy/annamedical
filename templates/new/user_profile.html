@@ -21,7 +21,8 @@
                         <img src="{{ user.doctor.photo.url }}" alt="Profile" class="rounded-circle">
                         <h2>{{ user.doctor.full_name }}</h2>
                         <h3>{{ user.doctor.specialization }}</h3>
-                        <h3>Клиника: {% for clinic in user.doctor.clinic.all %}{{ clinic }}{% if not forloop.last %} | {% endif %} {% endfor %}</h3>
+                        <h3>Клиника: {% for clinic in user.doctor.clinic.all %}{{ clinic }}{% if not forloop.last %} |
+                            {% endif %} {% endfor %}</h3>
                     </div>
                 </div>
 
@@ -41,7 +42,8 @@
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Ваши пациенты
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Ваши
+                                    пациенты
                                 </button>
                             </li>
 
@@ -55,165 +57,72 @@
                         <div class="tab-content pt-2">
 
                             <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                                <div class="card-body">
-                        <h5 class="card-title">Записи пациентов <span>| Сегодня</span></h5>
+                                <!-- Recent Activity -->
+                                <div class="dashboard">
+                                    <h5 class="card-title">Записи пациентов <span>| Сегодня</span></h5>
 
-                        <div class="activity">
-                            {% for appointment in appointments %}
-                            <div class="activity-item d-flex">
-                                <div class="activite-label">{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}<br>
-                                    {{appointment.clinic}}
+                                    <div class="activity">
+                                        {% for appointment in appointments %}
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}<br>
+                                                {{appointment.clinic}}
+                                            </div>
+                                            <i class="bi bi-circle-fill activity-badge text-{% if appointment.status == 'approved' %}info
+                                                                            {% elif appointment.status == 'completed' %}success
+                                                                            {% elif appointment.status == 'planned' %}primary
+                                                                            {% elif appointment.status == 'canceled' %}danger
+                                                                            {% endif %} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <span class=" fw-bold text-dark text-uppercase">{{ appointment.patient }}</span><br>
+                                                Доктор: {{appointment.doctor}}
+                                                <br>
+                                                {% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}
+                                                <br>
+                                                <span class="{% if appointment.status == 'approved' %}badge fw-light text-uppercase bg-info
+                                                                            {% elif appointment.status == 'completed' %}badge fw-light text-uppercase bg-success
+                                                                            {% elif appointment.status == 'planned' %}badge fw-light text-uppercase bg-primary
+                                                                            {% elif appointment.status == 'canceled' %}badge fw-light text-uppercase bg-danger
+                                                                            {% endif %}">{{appointment.get_status_display}}</span>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                                <i class="bi bi-circle-fill activity-badge text-{% if appointment.status == 'approved' %}info
-                                                                {% elif appointment.status == 'completed' %}success
-                                                                {% elif appointment.status == 'planned' %}primary
-                                                                {% elif appointment.status == 'canceled' %}danger
-                                                                {% endif %} align-self-start"></i>
-                                <div class="activity-content">
-                                    <span class=" fw-bold text-dark text-uppercase">{{ appointment.patient }}</span><br>
-                                    Доктор: {{appointment.doctor}}
-                                    <br>
-                                    {% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}
-                                    <br>
-                                    <span class="{% if appointment.status == 'approved' %}badge fw-light text-uppercase bg-info
-                                                                {% elif appointment.status == 'completed' %}badge fw-light text-uppercase bg-success
-                                                                {% elif appointment.status == 'planned' %}badge fw-light text-uppercase bg-primary
-                                                                {% elif appointment.status == 'canceled' %}badge fw-light text-uppercase bg-danger
-                                                                {% endif %}">{{appointment.get_status_display}}</span>
-                                </div>
-                            </div><!-- End activity item-->
-                            {% endfor %}
-
-
-                        </div>
-
-                    </div>
-
                             </div>
 
                             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                                <!-- Recent Sales -->
+                                <div class="card recent-sales overflow-auto">
+                                <div class="card-body">
+                                    <h5 class="card-title">Список пациентов</h5>
 
-                                <!-- Profile Edit Form -->
-                                <form>
-                                    <div class="row mb-3">
-                                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile
-                                            Image</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <img src="assets/img/profile-img.jpg" alt="Profile">
-                                            <div class="pt-2">
-                                                <a href="#" class="btn btn-primary btn-sm"
-                                                   title="Upload new profile image"><i class="bi bi-upload"></i></a>
-                                                <a href="#" class="btn btn-danger btn-sm"
-                                                   title="Remove my profile image"><i class="bi bi-trash"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="fullName" type="text" class="form-control" id="fullName"
-                                                   value="Kevin Anderson">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about"
-                                                      style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="company" type="text" class="form-control" id="company"
-                                                   value="Lueilwitz, Wisoky and Leuschke">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="job" type="text" class="form-control" id="Job"
-                                                   value="Web Designer">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="country" type="text" class="form-control" id="Country"
-                                                   value="USA">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="address" type="text" class="form-control" id="Address"
-                                                   value="A108 Adam Street, New York, NY 535022">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="phone" type="text" class="form-control" id="Phone"
-                                                   value="(436) 486-3538 x29071">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="email" type="email" class="form-control" id="Email"
-                                                   value="k.anderson@example.com">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="twitter" type="text" class="form-control" id="Twitter"
-                                                   value="https://twitter.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="facebook" type="text" class="form-control" id="Facebook"
-                                                   value="https://facebook.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="instagram" type="text" class="form-control" id="Instagram"
-                                                   value="https://instagram.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label">Linkedin
-                                            Profile</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="linkedin" type="text" class="form-control" id="Linkedin"
-                                                   value="https://linkedin.com/#">
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form><!-- End Profile Edit Form -->
-
+                                    <table class="table table-borderless datatable" id="patientsTable">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Фото</th>
+                                            <th scope="col">Фамилия Имя</th>
+                                            <th scope="col">Лечащий врач</th>
+                                            <th scope="col">Клиника</th>
+                                            <th scope="col">Статус</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for patient in patients %}
+                                        <tr>
+                                            <th scope="row"><img class="img-fluid flex-shrink-0"
+                                                                 src="{% if patient.photo %}{{ patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="{{ patient }}"
+                                                                 style="min-width: 50px" width="50"></th>
+                                            <td><a href="{% url 'core:patient_detail' patient.pk %}">{{ patient.full_name }}</a></td>
+                                            <td>{{ patient.doctor }}</td>
+                                            <th scope="row">{{ patient.clinic }}</th>
+                                            <td><a class="btn btn-outline-primary btn-sm"
+                                                   href="{% url 'core:patient_detail' patient.pk %}">Детально</a></td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                </div>
                             </div>
 
                             <div class="tab-pane fade pt-3" id="profile-settings">

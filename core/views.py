@@ -79,7 +79,7 @@ class PatientsPage(LoginRequiredMixin, ListView):
 
 class PatientDetail(LoginRequiredMixin, DetailView):
     model = Patient
-    template_name = 'patient.html'
+    template_name = 'new/patient_detail.html'
     context_object_name = 'patient'
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -93,6 +93,8 @@ class PatientDetail(LoginRequiredMixin, DetailView):
 
         context['appointments'] = list(patient.appointments.all().prefetch_related('photos').order_by('-start'))
         context['three_appointments'] = prefetched_appointments[:3]
+        context['doctors'] = Doctor.objects.all()
+        context['clinics'] = Clinic.objects.all()
         return context
 
 
@@ -110,5 +112,16 @@ class UserProfileView(LoginRequiredMixin, DetailView):
         start_of_day = datetime.combine(current_date, datetime.min.time())
         end_of_day = datetime.combine(current_date, datetime.max.time())
         context['appointments'] = Appointment.objects.filter(start__range=(start_of_day, end_of_day),
-                                                             doctor=user.doctor).exclude(status='canceled')
+                                                             doctor=user.doctor)
+        context['patients'] = Patient.objects.filter(doctor=user.doctor)
+        return context
+
+class AddPatientView(TemplateView):
+    template_name = 'new/add_patient.html'
+    extra_context = {'title': 'Добавление пациента'}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['doctors'] = Doctor.objects.all()
+        context['clinics'] = Clinic.objects.all()
         return context

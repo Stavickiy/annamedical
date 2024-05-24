@@ -9,6 +9,7 @@
                 <li class="breadcrumb-item active">Ежедневник</li>
             </ol>
         </nav>
+        <a class="btn btn-primary" style="margin:5px;" href="{% url 'core:add_patient' %}">Записать на прием</a>
     </div><!-- End Page Title -->
 
     <section class="section dashboard">
@@ -52,7 +53,6 @@
                                     {% endfor %}
                                     </tbody>
                                 </table>
-
                             </div>
 
                         </div>
@@ -96,10 +96,7 @@
                                 </div>
                             </div><!-- End activity item-->
                             {% endfor %}
-
-
                         </div>
-
                     </div>
                 </div><!-- End Recent Activity -->
 

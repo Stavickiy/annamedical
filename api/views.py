@@ -3,11 +3,14 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
 from rest_framework import generics, viewsets
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, UpdateAPIView, \
+    CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serialisers import PatientSerializer, AppointmentSerializer, AppointmentDetailSerializer
+from api.serialisers import PatientSerializer, AppointmentSerializer, AppointmentDetailSerializer, \
+    PatientUpdateSerializer
 from appointment.models import Appointment
 from core.models import Patient, Doctor
 from datetime import datetime, timedelta
@@ -87,3 +90,21 @@ class PatientsAPIList(LoginRequiredMixin, ListAPIView):
             patients = patients.filter(clinic_id=clinic_id)
 
         return patients
+
+class PatientUpdate(UpdateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+class CreatePatientAPIView(ListCreateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+class CreateAppointmentAPIView(ListCreateAPIView):
+    queryset = Appointment.objects.all()
+    serializer_class = PatientUpdateSerializer
+    permission_classes = [IsAuthenticated]

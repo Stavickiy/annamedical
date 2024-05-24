@@ -12,8 +12,9 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('id','first_name', 'last_name', 'full_name', 'photo', 'date_of_birth',
-                  'gender', 'phone_number', 'medical_history', 'doctor_full_name', 'doctor', 'url', 'clinic_name')
+        fields = (
+        'id', 'first_name', 'last_name', 'full_name', 'photo', 'date_of_birth', 'phone_number', 'medical_history',
+        'doctor_full_name', 'doctor', 'url', 'clinic_name')
 
     def get_doctor_full_name(self, obj):
         return obj.doctor.full_name()
@@ -23,6 +24,25 @@ class PatientSerializer(serializers.ModelSerializer):
 
     def get_clinic_name(self, obj):
         return obj.clinic.name
+
+
+class PatientUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Patient
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'date_of_birth',
+            'doctor',
+            'phone_number',
+            'medical_history',
+            'photo',
+            'city',
+            'clinic',
+            'instagram',
+            'telegram'
+        ]
 
 
 class AppointmentSerializer(serializers.ModelSerializer):

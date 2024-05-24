@@ -25,7 +25,7 @@
                         <div class="card recent-sales overflow-auto">
                             <div class="card-body">
                                 <h5 class="card-title">Список пациентов</h5>
-
+                                <a class="btn btn-primary" style="margin:5px;" href="{% url 'core:add_patient' %}">Создать пациента</a>
                                 <table class="table table-borderless datatable" id="patientsTable">
                                     <thead>
                                     <tr>
@@ -33,14 +33,14 @@
                                         <th scope="col">Фамилия Имя</th>
                                         <th scope="col">Лечащий врач</th>
                                         <th scope="col">Клиника</th>
-                                        <th scope="col">Статус</th>
+                                        <th scope="col">Действие</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for patient in patients %}
                                     <tr>
                                         <th scope="row"><img class="img-fluid flex-shrink-0"
-                                                             src="{{ patient.photo.url }}" alt="{{ patient }}"
+                                                             src="{% if patient.photo %}{{ patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="{{ patient }}"
                                                              style="min-width: 50px" width="50"></th>
                                         <td><a href="{% url 'core:patient_detail' patient.pk %}">{{ patient.full_name }}</a></td>
                                         <td>{{ patient.doctor }}</td>
