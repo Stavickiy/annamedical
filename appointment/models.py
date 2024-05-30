@@ -24,12 +24,20 @@ class Appointment(models.Model):
     type = models.CharField(max_length=100, choices=AppointmentType.choices)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=50, choices=AppointmentStatus.choices)
-    services = models.ManyToManyField(Service, related_name='appointments', blank=True)
     clinic = models.ForeignKey(Clinic, on_delete=models.PROTECT, related_name='appointments')
 
     class Meta:
         ordering = ['start']
 
+
+class AppointmentItem(models.Model):
+    appointment = models.ForeignKey(Appointment, related_name='items', on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    price = models.IntegerField(default=0)
+
+    class Meta():
+        ordering = ('service__name',)
 
 
 class Photo(models.Model):

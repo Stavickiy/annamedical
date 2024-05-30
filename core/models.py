@@ -43,6 +43,9 @@ class Patient(models.Model):
     instagram = models.CharField(max_length=100, blank=True)
     telegram = models.CharField(max_length=100, blank=True)
 
+    class Meta():
+        ordering = ['last_name', 'first_name']
+
     def __str__(self):
         return ' '.join((str(self.last_name), str(self.first_name)))
 

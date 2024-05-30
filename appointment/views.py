@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView, TemplateView, FormView
 
-from appointment.forms import AppointmentForm
-from appointment.models import Appointment
-from core.models import Service, Doctor, Clinic
+from appointment.forms import AppointmentItemFormSet
+from appointment.models import Appointment, AppointmentStatus, AppointmentType
+from core.models import Service, Doctor, Clinic, Patient
 from django.utils import timezone
 from datetime import timedelta
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 
 
 class Appointments(ListView):
@@ -30,46 +30,79 @@ class Appointments(ListView):
         return context
 
 
-class AppointmentUpdateView(UpdateView):
-    model = Appointment
-    form_class = AppointmentForm
-    template_name = 'appointment_update.html'  # Предположим, что у вас есть шаблон appointment_update.html
+class CreateAppointmentVew(TemplateView):
+    template_name = 'new/create_appointment.html'
+    extra_context = {'title': 'Запись пациента на прием'}
 
-    def get_success_url(self):
-        # Перенаправление после успешного обновления записи
-        return reverse('appointment_detail', kwargs={'pk': self.object.pk})
-
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['doctors'] = Doctor.objects.all()
+        context['clinics'] = Clinic.objects.all()
+        patient = get_object_or_404(Patient, pk=self.request.GET.get('patient_id'))
+        context['patient'] = patient
+        context['patients'] = Patient.objects.all().exclude(pk=self.request.GET.get('patient_id'))
+        context['statuses'] = AppointmentStatus.choices
+        context['types'] = AppointmentType.choices
         context['services'] = Service.objects.all()
-        context['services_added'] = list(context['appointment'].services.all())
         return context
 
 
-class AppointmentUpdateView(UpdateView):
-    model = Appointment
-    form_class = AppointmentForm
-    template_name = 'appointment_update.html'  # Предположим, что у вас есть шаблон appointment_update.html
-
-    def get_success_url(self):
-        # Перенаправление после успешного обновления записи
-        return reverse('appointment_detail', kwargs={'pk': self.object.pk})
+# class AppointmentUpdateView(UpdateView):
+#     model = Appointment
+#     form_class = AppointmentForm
+#     template_name = 'appointment_update.html'
+#
+#     def get_success_url(self):
+#         # Перенаправление после успешного обновления записи
+#         return reverse('appointment_detail', kwargs={'pk': self.object.pk})
+#
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['services'] = Service.objects.all()
+#         context['services_added'] = list(context['appointment'].services.all())
+#         return context
 
 
 class AppointmentDitail(DetailView):
     model = Appointment
-    template_name = 'appointment_detail.html'
+    template_name = 'new/appointment_detail.html'
     context_object_name = 'appointment'
-    slug_url_kwarg = 'app_id'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        appointment = context['appointment']
-        context['services'] = appointment.services.all()
-        context['sum_services'] = sum([service.cost for service in context['services']])
+        appointment = self.get_object()
+        context['doctors'] = Doctor.objects.all()
+        context['clinics'] = Clinic.objects.all()
+        context['statuses'] = AppointmentStatus.choices
+        context['types'] = AppointmentType.choices
+        context['items'] = appointment.items.all()
+        context['services_selected'] = [item.service for item in context['items']]
+        context['services'] = Service.objects.all()
+        context['sum_services'] = sum([item.price * item.quantity for item in context['items']])
+        context['patients'] = Patient.objects.all()
+
+        # Создание formset и добавление его в контекст
+        if self.request.POST:
+            context['formset'] = AppointmentItemFormSet(self.request.POST, instance=appointment)
+        else:
+            context['formset'] = AppointmentItemFormSet(instance=appointment)
+
         return context
 
-    def get_object(self, queryset=None):
-        appointment = get_object_or_404(Appointment, pk=self.kwargs['app_id'])
-        return appointment
+class UpdateAppointmentItemsView(FormView):
+    form_class = AppointmentItemFormSet
+    template_name = 'new/appointment_detail.html'
+
+    def get_success_url(self):
+        return reverse_lazy('appointment_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        appointment = get_object_or_404(Appointment, pk=self.kwargs['pk'])
+        kwargs['instance'] = appointment
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 

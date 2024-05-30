@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from appointment.models import Appointment
-from core.models import Patient
+from appointment.models import Appointment, Photo, AppointmentItem
+from core.models import Patient, Service
 from django.urls import reverse
 
 
@@ -13,8 +13,8 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = (
-        'id', 'first_name', 'last_name', 'full_name', 'photo', 'date_of_birth', 'phone_number', 'medical_history',
-        'doctor_full_name', 'doctor', 'url', 'clinic_name')
+            'id', 'first_name', 'last_name', 'full_name', 'photo', 'date_of_birth', 'phone_number', 'medical_history',
+            'doctor_full_name', 'doctor', 'url', 'clinic_name')
 
     def get_doctor_full_name(self, obj):
         return obj.doctor.full_name()
@@ -81,7 +81,27 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return obj.clinic.name
 
 
+class AppointmentItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointmentItem
+        fields = '__all__'
+
+
 class AppointmentDetailSerializer(serializers.ModelSerializer):
-    class Meta():
+    items = AppointmentItemSerializer(many=True, required=False)
+
+    class Meta:
         model = Appointment
+        fields = '__all__'
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Service
+        fields = '__all__'
+
+
+class AppointmentPhotoSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Photo
         fields = '__all__'

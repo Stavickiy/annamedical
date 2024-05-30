@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from appointment.models import Appointment
 from users.models import User
-from .models import Doctor, Patient, Clinic
+from .models import Doctor, Patient, Clinic, Service
 
 
 class HomePage(LoginRequiredMixin, TemplateView):
@@ -125,3 +125,8 @@ class AddPatientView(TemplateView):
         context['doctors'] = Doctor.objects.all()
         context['clinics'] = Clinic.objects.all()
         return context
+
+class ServicesView(ListView):
+    template_name = 'new/services.html'
+    model = Service
+    context_object_name = 'services'

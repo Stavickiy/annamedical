@@ -1,0 +1,556 @@
+{% extends 'new/base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">-->
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/browser-image-compression/dist/browser-image-compression.min.js"></script>
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Детали приема</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active">Детали приема пациента</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section profile">
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                        <img src="{% if appointment.patient.photo %}{{ appointment.patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="Patient Photo">
+                        <h2><a href="{% url 'core:patient_detail' appointment.patient.pk %}">{{ appointment.patient }}</a></h2>
+                        <div class="text-left mt-3">
+                            Дата записи: <strong>{{ appointment.start.date }}</strong> <br>
+                            Время записи: <strong>{{ appointment.start.time }} - {{ appointment.end.time }}</strong> <br>
+                            Статус: <span class="badge bg-{% if appointment.status == 'approved' %}info
+                                                                {% elif appointment.status == 'completed' %}success
+                                                                {% elif appointment.status == 'planned' %}primary
+                                                                {% elif appointment.status == 'canceled' %}danger
+                                                                {% endif %}">{{appointment.get_status_display}}</span>
+                            <br>
+                            Доктор: <strong>{{appointment.doctor}}</strong><br>
+                            Тип записи: <strong>{{ appointment.get_type_display }}</strong><br>
+                            Примечание: <strong>{{appointment.description}}</strong></p>
+                        </div>
+                        <a class="btn btn-primary" style="margin:5px;" href="{% url 'appointment:create_appointment' %}?patient_id={{ appointment.patient.id }}">Записать на следующий прием</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-body pt-3">
+                        <!-- Bordered Tabs -->
+                        <ul class="nav nav-tabs nav-tabs-bordered">
+                            <li class="nav-item">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">
+                                    Детали посещения(процедуры)
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">
+                                    Редактировать посещение
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">
+                                    Фото
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-2">
+                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                                <h5 class="card-title">Процедуры посещения <span>| Все</span></h5>
+                                <div class="activity">
+                                    <hr>
+                                    {% for item in items %}
+                                    <form id="edit-item-form-{{ item.id }}" method="post" action="{% url 'api:appointment_item_update' item.id %}" class="row g-3">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="appointment" value="{{ item.appointment.id }}">
+                                        <input type="hidden" name="service" value="{{ item.service.id }}">
+                                        <div class="col-md-3">
+                                            <h5 class="card-title">{{ item.service.name }}</h5>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="quantity-{{ item.id }}" class="form-label" style="margin-bottom:5px">Количество</label>
+                                            <input type="number" class="form-control" id="quantity-{{ item.id }}" name="quantity" value="{{ item.quantity }}" min="1">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="price-{{ item.id }}" class="form-label" style="margin-bottom:5px">Стоимость(ед.)</label>
+                                            <input type="number" class="form-control" id="price-{{ item.id }}" name="price" value="{{ item.price }}" min="0" step="0.01">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <br>
+                                            <button type="submit" class="btn btn-primary" disabled>Сохранить</button>
+                                        </div>
+                                    </form>
+                                    <hr>
+                                    {% endfor %}
+                                    <div class="mt-3">
+                                        <strong>Сумма: </strong>{{ sum_services }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                                <!-- Profile Edit Form -->
+                                <form id="appointment-form" enctype="multipart/form-data" action="{% url 'api:appointment_update' appointment.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="row mb-3">
+                                        <label class="col-md-4 col-lg-3 col-form-label">Пациент*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <select class="form-select" name="patient" aria-label="Default select example" id="patient" required>
+                                                {% for patient in patients %}
+                                                <option value="{{ patient.id }}" {% if appointment.patient == patient %}selected{% endif %}>{{ patient }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label for="startDateTime" class="col-md-4 col-lg-3 col-form-label">Дата и время начала*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input type="datetime-local" class="form-control" id="startDateTime" name="start" value="{{ appointment.start|date:'Y-m-d\\TH:i' }}" data-original-value="{{ appointment.start|date:'Y-m-d\\TH:i' }}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label for="endDateTime" class="col-md-4 col-lg-3 col-form-label">Дата и время завершения*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input type="datetime-local" class="form-control" id="endDateTime" name="end" value="{{ appointment.end|date:'Y-m-d\\TH:i' }}" data-original-value="{{ appointment.end|date:'Y-m-d\\TH:i' }}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-md-4 col-lg-3 col-form-label">Лечащий врач*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <select class="form-select" name="doctor" aria-label="Default select example" id="doctor" required data-original-value="{{ appointment.doctor }}">
+                                                {% for doctor in doctors %}
+                                                <option value="{{ doctor.id }}" {% if appointment.doctor == doctor %}selected{% endif %} >{{ doctor }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-md-4 col-lg-3 col-form-label">Клиника*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <select class="form-select" name="clinic" aria-label="Default select example" id="clinic" required>
+                                                <option selected disabled value="">не выбрано</option>
+                                                {% for clinic in clinics %}
+                                                <option value="{{ clinic.id }}" {% if appointment.clinic == clinic %}selected{% endif %}>{{ clinic }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-md-4 col-lg-3 col-form-label">Статус*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <select class="form-select" name="status" aria-label="Default select example" id="status" required>
+                                                <option selected disabled value="">не выбрано</option>
+                                                {% for status in statuses %}
+                                                <option value="{{ status.0 }}" {% if appointment.status == status.0 %}selected{% endif %}>{{ status.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-md-4 col-lg-3 col-form-label">Тип*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <select class="form-select" name="type" aria-label="Default select example" id="type" required>
+                                                <option selected disabled value="">не выбрано</option>
+                                                {% for type in types %}
+                                                <option value="{{ type.0 }}" {% if appointment.type == type.0 %}selected{% endif %}>{{ type.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-md-4 col-lg-3 col-form-label">Процедуры*</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <select class="form-select" name="items" id="items" multiple aria-label="multiple select example">
+                                                {% for service in services %}
+                                                <option value="{{ service.id }}" {% if service in services_selected %}selected{% endif %}>{{ service.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label for="description" class="col-md-4 col-lg-3 col-form-label">Примечание</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <textarea name="description" class="form-control" id="description" style="height: 100px">{{ appointment.description }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Сохранить</button>
+                                    </div>
+                                </form><!-- End Profile Edit Form -->
+                            </div>
+
+                            <div class="tab-pane fade pt-3" id="profile-settings">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Фотографии посещения</h5>
+                                        <!-- Button to open the modal -->
+                                        <button type="button" class="btn btn-primary" style="margin:10px;" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                            Добавить фото
+                                        </button>
+
+                                        <!-- PRODUCT SLIDER -->
+                                        <div class="row m-sm-0">
+                                            <div class="col-sm-2 p-sm-0 order-2 order-sm-1 mt-2 mt-sm-0 px-xl-2">
+                                                <div class="swiper product-slider-thumbs">
+                                                    <div class="swiper-wrapper">
+                                                        {% for photo in appointment.photos.all %}
+                                                        <div class="swiper-slide h-auto swiper-thumb-item mb-3">
+                                                            <img class="w-100" src="{{ photo.photo.url }}" alt="...">
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-10 order-1 order-sm-2">
+                                                <div class="swiper product-slider">
+                                                    <div class="swiper-wrapper">
+                                                        {% for photo in appointment.photos.all %}
+                                                        <div class="swiper-slide h-auto">
+                                                            <a class="glightbox product-view" href="{{ photo.photo.url }}" data-gallery="gallery2" data-glightbox="Photo {{ forloop.counter }}">
+                                                                <img class="img-fluid" src="{{ photo.photo.url }}" alt="...">
+                                                            </a>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- End Bordered Tabs -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Успех</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Данные успешно сохранены!
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Код HTML для модального окна -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Изображение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="#" id="modalImage" class="img-fluid" alt="Изображение">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Upload Photo Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Загрузить фото</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm" enctype="multipart/form-data" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" id="appointment" name="appointment" value="{{ appointment.id }}">
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Выберите фото</label>
+                            <input class="form-control" type="file" id="photo" name="photo" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Загрузить</button>
+                    </form>
+                    <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display:none;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery и Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('appointment-form');
+        const saveButton = form.querySelector('button[type="submit"]');
+        const inputs = form.querySelectorAll('input, textarea, select');
+        const originalValues = {};
+
+        // Сохраняем изначальные значения полей формы
+        inputs.forEach(input => {
+            if (input.type === 'file') {
+                originalValues[input.id] = input.files.length > 0 ? input.files[0] : null;
+            } else {
+                originalValues[input.id] = input.value;
+            }
+        });
+
+        function checkForChanges() {
+            let hasChanged = false;
+            inputs.forEach(input => {
+                if (input.type === 'file') {
+                    if (input.files.length > 0 && input.files[0] !== originalValues[input.id]) {
+                        hasChanged = true;
+                    }
+                } else {
+                    if (input.value !== originalValues[input.id]) {
+                        hasChanged = true;
+                    }
+                }
+            });
+            saveButton.disabled = !hasChanged;
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('change', checkForChanges);
+            input.addEventListener('input', checkForChanges);
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Отменяем стандартное поведение формы
+
+            const formData = new FormData(form); // Собираем данные формы
+            const url = form.getAttribute('action'); // Получаем URL, на который будем отправлять запрос
+
+            fetch(url, {
+                method: 'PUT', // Используем метод PUT для обновления данных
+                body: formData, // Передаем данные формы
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // Устанавливаем CSRF-токен
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Показать модальное окно
+                    $('#successModal').modal('show');
+
+                    // Обновить оригинальные значения
+                    inputs.forEach(input => {
+                        if (input.type === 'file') {
+                            originalValues[input.id] = input.files.length > 0 ? input.files[0] : null;
+                        } else {
+                            originalValues[input.id] = input.value;
+                        }
+                    });
+                    checkForChanges(); // Перепроверить изменения, чтобы отключить кнопку
+
+                    // Закрыть модальное окно через 1 секунды
+                    setTimeout(() => {
+                        $('#successModal').modal('hide');
+                    }, 1000);
+                    // Обновление страницы после закрытия модального окна
+                    $('#successModal').on('hidden.bs.modal', function (e) {
+                        location.reload(); // Перезагрузить страницу
+                    });
+                } else {
+                    return response.json().then(data => {
+                        console.error('Ошибка обновления:', data);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        });
+
+        checkForChanges(); // Первичная проверка для установки состояния кнопки
+
+        // Функция для получения CSRF-токена из cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+    });
+    </script>
+    <script>
+    function initSwipers() {
+        var thumbDirection = window.innerWidth < 768 ? 'horizontal' : 'vertical';
+
+        var swiperThumbs = new Swiper('.product-slider-thumbs', {
+            spaceBetween: 10,
+            slidesPerView: 4,
+            direction: thumbDirection,
+            freeMode: true,
+            watchSlidesProgress: true,
+        });
+
+        var swiper = new Swiper('.product-slider', {
+            spaceBetween: 10,
+            thumbs: {
+                swiper: swiperThumbs
+            }
+        });
+
+        var lightbox = GLightbox({
+            selector: '.glightbox'
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initSwipers();
+
+        window.addEventListener('resize', function () {
+            var oldSwipers = document.querySelectorAll('.swiper-container-initialized');
+            oldSwipers.forEach(swiper => {
+                swiper.swiper.destroy(true, true);
+            });
+            initSwipers();
+        });
+
+        // Handle form submission
+        $('#uploadForm').submit(async function(event) {
+            event.preventDefault();
+
+            const file = document.getElementById('photo').files[0];
+            const options = {
+                maxSizeMB: 1,          // Максимальный размер файла в MB
+                maxWidthOrHeight: 1920, // Максимальная ширина или высота изображения
+                useWebWorker: true,
+                onProgress: (p) => console.log(`Compression Progress: ${p}%`)
+            }
+
+            // Показываем спиннер
+            document.getElementById('loadingSpinner').style.display = 'block';
+
+            try {
+                const compressedFile = await imageCompression(file, options);
+                const formData = new FormData();
+                formData.append('appointment', $('#appointment').val());
+                formData.append('photo', compressedFile, compressedFile.name);
+
+                $.ajax({
+                    url: '{% url "api:adding_appointment_photo" %}',  // Обновите этот URL на ваш
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken') // Устанавливаем CSRF-токен
+                    },
+                    success: function (response) {
+                        $('#uploadModal').modal('hide');
+                        location.reload(); // Перезагрузите страницу, чтобы увидеть новое фото
+                    },
+                    error: function (error) {
+                        console.error('Upload error:', error);
+                    },
+                    complete: function () {
+                        // Скрываем спиннер
+                        document.getElementById('loadingSpinner').style.display = 'none';
+                    }
+                });
+            } catch (error) {
+                console.error('Compression error:', error);
+                // Скрываем спиннер в случае ошибки
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        });
+
+        // Функция для получения CSRF-токена из cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Проверяем, соответствует ли эта cookie искомому имени.
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    const forms = document.querySelectorAll('form[id^="edit-item-form-"]');
+
+    forms.forEach(form => {
+        const saveButton = form.querySelector('button[type="submit"]');
+        const quantityInput = form.querySelector('input[name="quantity"]');
+        const priceInput = form.querySelector('input[name="price"]');
+        const originalValues = {
+            quantity: quantityInput.value,
+            price: priceInput.value
+        };
+
+        function checkForChanges() {
+            const hasChanged = quantityInput.value !== originalValues.quantity || priceInput.value !== originalValues.price;
+            saveButton.disabled = !hasChanged;
+        }
+
+        [quantityInput, priceInput].forEach(input => {
+            input.addEventListener('change', checkForChanges);
+            input.addEventListener('input', checkForChanges);
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'PUT',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    originalValues.quantity = quantityInput.value;
+                    originalValues.price = priceInput.value;
+                    checkForChanges();
+                    location.reload();
+                } else {
+                    return response.json().then(data => {
+                        console.error('Ошибка обновления:', data);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        });
+
+        checkForChanges();
+    });
+});
+    </script>
+
+</main><!-- End #main -->
+{% endblock %}

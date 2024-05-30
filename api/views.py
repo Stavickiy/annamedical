@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, UpdateAPIView, \
     CreateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -10,11 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.serialisers import PatientSerializer, AppointmentSerializer, AppointmentDetailSerializer, \
-    PatientUpdateSerializer
-from appointment.models import Appointment
-from core.models import Patient, Doctor
+    PatientUpdateSerializer, ServiceSerializer, AppointmentPhotoSerializer, AppointmentItemSerializer
+from appointment.models import Appointment, Photo, AppointmentItem
+from core.models import Patient, Doctor, Service
 from datetime import datetime, timedelta
-
 
 
 class AppointmentsAPIList(LoginRequiredMixin, ListAPIView):
@@ -91,6 +90,7 @@ class PatientsAPIList(LoginRequiredMixin, ListAPIView):
 
         return patients
 
+
 class PatientUpdate(UpdateAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientUpdateSerializer
@@ -99,12 +99,76 @@ class PatientUpdate(UpdateAPIView):
     def perform_update(self, serializer):
         serializer.save()
 
+
 class CreatePatientAPIView(ListCreateAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientUpdateSerializer
     permission_classes = [IsAuthenticated]
 
-class CreateAppointmentAPIView(ListCreateAPIView):
+
+class CreateAppointmentAPIView(generics.CreateAPIView):
+    serializer_class = AppointmentDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        items_data = request.data.getlist('items', [])
+        appointment_data = request.data
+        serializer = self.get_serializer(data=appointment_data)
+        serializer.is_valid(raise_exception=True)
+        appointment = serializer.save()
+
+        # Добавление услуг к созданному назначению
+        for service_id in items_data:
+            service = Service.objects.get(id=service_id)
+            AppointmentItem.objects.create(
+                appointment=appointment,
+                service=service,
+                quantity=1,  # По умолчанию количество 1
+                price=service.cost  # Используем стоимость из базы данных
+            )
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class AppointmentAPIUpdate(UpdateAPIView):
     queryset = Appointment.objects.all()
-    serializer_class = PatientUpdateSerializer
+    serializer_class = AppointmentDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Обновление услуг, связанных с назначением
+        items_data = request.data.getlist('items', [])
+        instance.items.all().delete()  # Удаление всех предыдущих записей
+        for service_id in items_data:
+            service = Service.objects.get(id=service_id)
+            AppointmentItem.objects.create(
+                appointment=instance,
+                service=service,
+                quantity=1,
+                price=service.cost
+            )
+
+        return Response(serializer.data)
+
+class UpdateItemAPIView(UpdateAPIView):
+    queryset = AppointmentItem.objects.all()
+    serializer_class = AppointmentItemSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class CreateServiceAPIView(ListCreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class AddedAppointmentPhotoAPI(ListCreateAPIView):
+    queryset = Photo
+    serializer_class = AppointmentPhotoSerializer
     permission_classes = [IsAuthenticated]

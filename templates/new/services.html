@@ -1,0 +1,187 @@
+{% extends 'new/base.html' %}
+{% block content %}
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Все услуги</h1>
+    </div><!-- End Page Title -->
+
+    <section class="section profile">
+        <div class="row">
+
+            <!-- Top Selling -->
+            <div class="col-12">
+
+                <div class="card">
+                    <div class="card-body pt-3">
+                        <!-- Bordered Tabs -->
+                        <ul class="nav nav-tabs nav-tabs-bordered">
+
+                            <li class="nav-item">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">
+                                    Все услуги клиники
+                                </button>
+                            </li>
+
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Создание
+                                    новой услуги
+                                </button>
+                            </li>
+
+                        </ul>
+                        <div class="tab-content pt-2">
+
+                            <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                                <!-- Recent Activity -->
+                                <h5 class="card-title">Список услуг клиники</h5>
+
+                                <!-- Default Table -->
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Название услуги</th>
+                                        <th scope="col">Стоимость</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for service in services %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td><a href="#" class="text-primary fw-bold">{{ service.name }}</a></td>
+                                        <td>{{ service.cost }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!-- End Default Table Example -->
+
+                            </div>
+
+                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                                <!-- Recent Sales -->
+                                <section class="section">
+                                    <div class="row" style="justify-content: center;">
+                                        <div class="col-lg-6">
+
+                                            <h5 class="card-title">Новая услуга</h5>
+                                            <!-- Profile Edit Form -->
+                                            <!-- General Form Elements -->
+                                            <form id="service-form" enctype="multipart/form-data" action="{% url 'api:create_service' %}" method="post">
+                                                {% csrf_token %}
+                                                <div class="row mb-3">
+                                                    <label for="name" class="col-md-4 col-lg-3 col-form-label">Название услуги*</label>
+                                                    <div class="col-md-8 col-lg-9">
+                                                        <input type="text" class="form-control" id="name" name="name" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <label for="cost" class="col-md-4 col-lg-3 col-form-label">Стоимость*</label>
+                                                    <div class="col-md-8 col-lg-9">
+                                                        <input type="number" class="form-control" id="cost" name="cost" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-sm-10">
+                                                        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Создать</button>
+                                                    </div>
+                                                </div>
+
+                                            </form><!-- End General Form Elements -->
+
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div class="tab-pane fade pt-3" id="profile-settings">
+
+                            </div>
+
+                        </div><!-- End Bordered Tabs -->
+
+                    </div>
+
+                </div><!-- End Top Selling -->
+            </div>
+        </div>
+    </section>
+    <!-- jQuery и Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Модальное окно -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Успех</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Услуга успешно создана.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="redirectButton">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main><!-- End #main -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('service-form');
+    const submitButton = document.getElementById('submit-button');
+    const requiredFields = form.querySelectorAll('input[required]');
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const redirectButton = document.getElementById('redirectButton');
+
+    function checkFormValidity() {
+        let isValid = true;
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+            }
+        });
+        submitButton.disabled = !isValid;
+    }
+
+    requiredFields.forEach(field => {
+        field.addEventListener('input', checkFormValidity);
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Ошибка при создании.');
+        })
+        .then(data => {
+            successModal.show();
+            redirectButton.addEventListener('click', function() {
+                window.location.href = `/services/`;
+            });
+        })
+        .catch(error => {
+            console.error('Произошла ошибка при выполнении запроса:', error);
+        });
+    });
+
+    checkFormValidity(); // Initial check in case fields are pre-filled
+});
+</script>
+{% endblock %}

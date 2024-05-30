@@ -2,7 +2,6 @@
 {% block content %}
 <main id="main" class="main">
     <!-- Bootstrap CSS -->
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
 <!-- jQuery и Bootstrap JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -66,8 +65,7 @@
                             <p class="text-muted mb-1 font-13"><strong>Город проживания : </strong><span class="ml-2">{{ patient.city }}</span>
                             </p>
                         </div>
-                        <a type="button" class="btn btn-success btn-xs waves-effect mb-2 waves-light" href="#">Записать
-                            на прием</a>
+                        <a class="btn btn-primary" style="margin:5px;" href="{% url 'appointment:create_appointment' %}?patient_id={{ patient.id }}">Записать на прием</a>
                     </div>
                 </div>
 
@@ -94,7 +92,7 @@
 
                             <li class="nav-item">
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">
-                                    Settings
+                                    Финансы
                                 </button>
                             </li>
 
@@ -119,10 +117,14 @@
                                                                             {% endif %} align-self-start"></i>
                                             <div class="activity-content">
                                                 <a href="{% url 'appointment:appointment_detail' appointment.pk %}">
-                                                <span class=" fw-bold text-dark text-uppercase">{% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}</span><br>
+                                                <span class=" fw-bold text-dark text-uppercase">{% for item in appointment.items.all %} {{ item.service }} {% if not forloop.last %}|{% endif %} {% endfor %}</span><br>
                                                 </a>
                                                 Доктор: {{appointment.doctor}}
                                                 <br>
+                                                {% if appointment.photos.all %}
+                                                <span><strong><i class="bi bi-camera"></i><i class="bi bi-check-circle-fill" style="color:green;"></i></strong></span>
+                                                <br>
+                                                {% endif %}
                                                 <span class="{% if appointment.status == 'approved' %}badge fw-light text-uppercase bg-info
                                                                             {% elif appointment.status == 'completed' %}badge fw-light text-uppercase bg-success
                                                                             {% elif appointment.status == 'planned' %}badge fw-light text-uppercase bg-primary
@@ -248,46 +250,6 @@
                             <div class="tab-pane fade pt-3" id="profile-settings">
 
                                 <!-- Settings Form -->
-                                <form>
-
-                                    <div class="row mb-3">
-                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email
-                                            Notifications</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="changesMade"
-                                                       checked>
-                                                <label class="form-check-label" for="changesMade">
-                                                    Changes made to your account
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="newProducts"
-                                                       checked>
-                                                <label class="form-check-label" for="newProducts">
-                                                    Information on new products and services
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="proOffers">
-                                                <label class="form-check-label" for="proOffers">
-                                                    Marketing and promo offers
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="securityNotify"
-                                                       checked disabled>
-                                                <label class="form-check-label" for="securityNotify">
-                                                    Security alerts
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form><!-- End settings Form -->
 
                             </div>
 

@@ -79,7 +79,6 @@
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                     <li class="dropdown-header">
                         Ваши записи на сегодня: {{ appointments_by_doctor_today|length }}
-                        <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
                     </li>
                     {% for appointment in appointments_by_doctor_today %}
                     <li>
@@ -88,21 +87,16 @@
 
                     <li class="notification-item">
                         <i class="bi bi-exclamation-circle text-warning"></i>
-                        <div>
-                            <h4>{{ appointment.patient }}</h4>
-                            <p>{% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}</p>
-                            <p>{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}</p>
-                        </div>
+                        <a href="{% url 'appointment:appointment_detail' appointment.pk %}">
+                            <div>
+                                <h4>{{ appointment.patient }}</h4>
+                                <p>{% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}</p>
+                                <p>{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}</p>
+                            </div>
+                        </a>
                     </li>
 
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     {% endfor %}
-
-                    <li class="dropdown-footer">
-                        <a href="#">Show all notifications</a>
-                    </li>
 
                 </ul><!-- End Notification Dropdown Items -->
 
@@ -174,6 +168,12 @@
                 <span>Профиль доктора</span>
             </a>
         </li><!-- End Profile Page Nav -->
+        <li class="nav-item">
+            <a class="nav-link {% if request.path|slice:':14' != '/services/' %} collapsed {% endif %}" href="{% url 'core:services' %}">
+                <i class="ri-service-line"></i>
+                <span>Услуги клиники</span>
+            </a>
+        </li>
 
         <li class="nav-item">
             <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">

@@ -57,7 +57,7 @@
                                 <label class="col-md-4 col-lg-3 col-form-label">Лечащий врач*</label>
                                 <div class="col-md-8 col-lg-9">
                                     <select class="form-select" name="doctor" aria-label="Default select example" id="doctor" required>
-                                        <option selected disabled value="">Доктор</option>
+                                        <option selected disabled value="">не выбрано</option>
                                         {% for doctor in doctors %}
                                         <option value="{{ doctor.id }}">{{ doctor }}</option>
                                         {% endfor %}
@@ -68,7 +68,7 @@
                                 <label class="col-md-4 col-lg-3 col-form-label">Клиника*</label>
                                 <div class="col-md-8 col-lg-9">
                                     <select class="form-select" name="clinic" aria-label="Default select example" id="clinic" required>
-                                        <option selected disabled value="">Клиника</option>
+                                        <option selected disabled value="">не выбрано</option>
                                         {% for clinic in clinics %}
                                         <option value="{{ clinic.id }}">{{ clinic }}</option>
                                         {% endfor %}

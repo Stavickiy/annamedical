@@ -14,7 +14,7 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'patient')
     fields = ('patient', 'doctor', 'start', 'end', 'services',
               'description', 'type', 'status', 'get_procedures', 'clinic')
-    filter_horizontal = ('services',)
+    # filter_horizontal = ('services',)
     readonly_fields = ['get_procedures']
     list_editable = ('type', 'status')
     ordering = ['start', 'patient']

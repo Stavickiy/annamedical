@@ -33,31 +33,36 @@
                     <div class="card-body">
                         <h5 class="card-title">Запись пациента</h5>
                         <!-- Profile Edit Form -->
-                        <form id="patient-form" enctype="multipart/form-data" action="{% url 'api:create_appointment' %}">
+                        <form id="patient-form" enctype="multipart/form-data" action="{% url 'api:create_appointment' %}" method="post">
                             {% csrf_token %}
                             <div class="row mb-3">
-                                <label for="first_name" class="col-md-4 col-lg-3 col-form-label">Имя*</label>
+                                <label class="col-md-4 col-lg-3 col-form-label">Пациент*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input name="first_name" type="text" class="form-control" id="first_name" required>
+                                    <select class="form-select" name="patient" aria-label="Default select example" id="patient" required>
+                                        <option selected value="{{ patient.id }}">{{ patient }}</option>
+                                        {% for patient in patients %}
+                                        <option value="{{ patient.id }}">{{ patient }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="last_name" class="col-md-4 col-lg-3 col-form-label">Фамилия*</label>
+                                <label for="startDateTime" class="col-md-4 col-lg-3 col-form-label">Дата и время начала*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input name="last_name" type="text" class="form-control" id="last_name" required>
+                                    <input type="datetime-local" class="form-control" id="startDateTime" name="start">
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Номер телефона*</label>
+                                <label for="endDateTime" class="col-md-4 col-lg-3 col-form-label">Дата и время завершения*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input name="phone_number" type="text" class="form-control" id="Phone" required>
+                                    <input type="datetime-local" class="form-control" id="endDateTime" name="end">
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <label class="col-md-4 col-lg-3 col-form-label">Лечащий врач*</label>
                                 <div class="col-md-8 col-lg-9">
                                     <select class="form-select" name="doctor" aria-label="Default select example" id="doctor" required>
-                                        <option selected disabled value="">Доктор</option>
+                                        <option selected disabled value="">не выбрано</option>
                                         {% for doctor in doctors %}
                                         <option value="{{ doctor.id }}">{{ doctor }}</option>
                                         {% endfor %}
@@ -68,7 +73,7 @@
                                 <label class="col-md-4 col-lg-3 col-form-label">Клиника*</label>
                                 <div class="col-md-8 col-lg-9">
                                     <select class="form-select" name="clinic" aria-label="Default select example" id="clinic" required>
-                                        <option selected disabled value="">Клиника</option>
+                                        <option selected disabled value="">не выбрано</option>
                                         {% for clinic in clinics %}
                                         <option value="{{ clinic.id }}">{{ clinic }}</option>
                                         {% endfor %}
@@ -76,43 +81,45 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="date_of_birth" class="col-md-4 col-lg-3 col-form-label">Дата рождения</label>
+                                <label class="col-md-4 col-lg-3 col-form-label">Статус*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input name="date_of_birth" id="date_of_birth" type="date" class="form-control">
+                                    <select class="form-select" name="status" aria-label="Default select example" id="status" required>
+                                        <option selected disabled value="">не выбрано</option>
+                                        {% for status in statuses %}
+                                        <option value="{{ status.0 }}">{{ status.1 }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="city" class="col-md-4 col-lg-3 col-form-label">Город проживания</label>
+                                <label class="col-md-4 col-lg-3 col-form-label">Тип*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input name="city" type="text" class="form-control" id="city">
+                                    <select class="form-select" name="type" aria-label="Default select example" id="type" required>
+                                        <option selected disabled value="">не выбрано</option>
+                                        {% for type in types %}
+                                        <option value="{{ type.0 }}">{{ type.1 }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="photo" class="col-md-4 col-lg-3 col-form-label">Фото пациента</label>
+                                <label class="col-md-4 col-lg-3 col-form-label">Добавить процедуры*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input class="form-control" type="file" id="photo" name="photo" accept="image/png, image/jpeg, image/jpg">
+                                    <select class="form-select" name="items" id="items" multiple aria-label="multiple select example">
+                                        {% for service in services %}
+                                        <option value="{{ service.id }}">{{ service.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="row mb-3">
-                                <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram</label>
+                                <label for="description" class="col-md-4 col-lg-3 col-form-label">Примечание</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <input name="instagram" type="text" class="form-control" id="Instagram">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="Telegram" class="col-md-4 col-lg-3 col-form-label">Telegram</label>
-                                <div class="col-md-8 col-lg-9">
-                                    <input name="telegram" type="text" class="form-control" id="Telegram">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label for="medical_history" class="col-md-4 col-lg-3 col-form-label">Анамнез</label>
-                                <div class="col-md-8 col-lg-9">
-                                    <textarea name="medical_history" class="form-control" id="medical_history" style="height: 100px"></textarea>
+                                    <textarea name="description" class="form-control" id="description" style="height: 100px"></textarea>
                                 </div>
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary" id="submit-button" disabled>Сохранить</button>
+                                <button type="submit" class="btn btn-primary" id="submit-button">Создать</button>
                             </div>
                         </form><!-- End Profile Edit Form -->
                     </div>
@@ -164,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             successModal.show();
             redirectButton.addEventListener('click', function() {
-                window.location.href = `/patient_detail/${data.id}/`;
+                window.location.href = `/appointments/appointment_detail/${data.id}/`;
             });
         })
         .catch(error => {
