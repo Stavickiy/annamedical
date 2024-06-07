@@ -308,6 +308,8 @@
         inputs.forEach(input => {
             if (input.type === 'file') {
                 originalValues[input.id] = input.files.length > 0 ? input.files[0] : null;
+            } else if (input.multiple) {
+                originalValues[input.id] = Array.from(input.selectedOptions).map(option => option.value);
             } else {
                 originalValues[input.id] = input.value;
             }
@@ -318,6 +320,11 @@
             inputs.forEach(input => {
                 if (input.type === 'file') {
                     if (input.files.length > 0 && input.files[0] !== originalValues[input.id]) {
+                        hasChanged = true;
+                    }
+                } else if (input.multiple) {
+                    const selectedValues = Array.from(input.selectedOptions).map(option => option.value);
+                    if (JSON.stringify(selectedValues) !== JSON.stringify(originalValues[input.id])) {
                         hasChanged = true;
                     }
                 } else {
@@ -356,6 +363,8 @@
                     inputs.forEach(input => {
                         if (input.type === 'file') {
                             originalValues[input.id] = input.files.length > 0 ? input.files[0] : null;
+                        } else if (input.multiple) {
+                            originalValues[input.id] = Array.from(input.selectedOptions).map(option => option.value);
                         } else {
                             originalValues[input.id] = input.value;
                         }
