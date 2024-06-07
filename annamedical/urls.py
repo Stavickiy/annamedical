@@ -18,6 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 
 from annamedical import settings
+from core.views import custom_page_not_found_view
+
+handler404 = custom_page_not_found_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,85 +1,68 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, UpdateView, TemplateView, FormView
 
 from appointment.forms import AppointmentItemFormSet
 from appointment.models import Appointment, AppointmentStatus, AppointmentType
+from core.mixins import ClinicAppointmentAccessMixin
 from core.models import Service, Doctor, Clinic, Patient
 from django.utils import timezone
 from datetime import timedelta
 from django.urls import reverse, reverse_lazy
 
 
-class Appointments(ListView):
-    model = Appointment
-    template_name = 'appointments.html'
-    context_object_name = 'appointments'
-
-    def get_queryset(self):
-        # Получаем текущую дату и время
-        current_datetime = timezone.now()
-        # Определяем дату, на которую будет осуществлено отображение
-        end_date = current_datetime + timedelta(days=7)
-        # Фильтруем записи Appointment по полю start
-        appointments = Appointment.objects.filter(start__gte=current_datetime, start__lte=end_date)
-        return appointments
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['doctors'] = Doctor.objects.all()
-        context['clinics'] = Clinic.objects.all()
-        return context
-
-
-class CreateAppointmentVew(TemplateView):
+class CreateAppointmentVew(LoginRequiredMixin, TemplateView):
     template_name = 'new/create_appointment.html'
     extra_context = {'title': 'Запись пациента на прием'}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['doctors'] = Doctor.objects.all()
-        context['clinics'] = Clinic.objects.all()
+        user = self.request.user
+
+        # выбираем только тех докторов которы работают в клиниках юзера
+        context['doctors'] = set([doctor for clinic in user.doctor.clinic.all() for doctor in clinic.doctors.all()])
+
+        # выбираем только те клиники в которых работает юзер
+        context['clinics'] = user.doctor.clinic.all()
         patient = get_object_or_404(Patient, pk=self.request.GET.get('patient_id'))
-        context['patient'] = patient
-        context['patients'] = Patient.objects.all().exclude(pk=self.request.GET.get('patient_id'))
+        context['patient_selected'] = patient
+
+        # выбираем только тех пациентов которые относятся к клиникам юзера
+        context['patients'] = set([patient for clinic in user.doctor.clinic.all() for patient in clinic.patients.all()])
+
         context['statuses'] = AppointmentStatus.choices
         context['types'] = AppointmentType.choices
         context['services'] = Service.objects.all()
         return context
 
 
-# class AppointmentUpdateView(UpdateView):
-#     model = Appointment
-#     form_class = AppointmentForm
-#     template_name = 'appointment_update.html'
-#
-#     def get_success_url(self):
-#         # Перенаправление после успешного обновления записи
-#         return reverse('appointment_detail', kwargs={'pk': self.object.pk})
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['services'] = Service.objects.all()
-#         context['services_added'] = list(context['appointment'].services.all())
-#         return context
-
-
-class AppointmentDitail(DetailView):
+class AppointmentDitail(LoginRequiredMixin, ClinicAppointmentAccessMixin, DetailView):
     model = Appointment
     template_name = 'new/appointment_detail.html'
     context_object_name = 'appointment'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+
         appointment = self.get_object()
-        context['doctors'] = Doctor.objects.all()
-        context['clinics'] = Clinic.objects.all()
+
+        # выбираем только тех докторов которы работают в клиниках юзера
+        context['doctors'] = set([doctor for clinic in user.doctor.clinic.all() for doctor in clinic.doctors.all()])
+
+        # выбираем только те клиники в которых работает юзер
+        context['clinics'] = user.doctor.clinic.all()
+
+        # выбираем только тех пациентов которые относятся к клиникам юзера
+        context['patients'] = set([patient for clinic in user.doctor.clinic.all() for patient in clinic.patients.all()])
+
         context['statuses'] = AppointmentStatus.choices
         context['types'] = AppointmentType.choices
         context['items'] = appointment.items.all()
         context['services_selected'] = [item.service for item in context['items']]
         context['services'] = Service.objects.all()
         context['sum_services'] = sum([item.price * item.quantity for item in context['items']])
-        context['patients'] = Patient.objects.all()
+
 
         # Создание formset и добавление его в контекст
         if self.request.POST:
@@ -89,7 +72,7 @@ class AppointmentDitail(DetailView):
 
         return context
 
-class UpdateAppointmentItemsView(FormView):
+class UpdateAppointmentItemsView(LoginRequiredMixin, ClinicAppointmentAccessMixin,  FormView):
     form_class = AppointmentItemFormSet
     template_name = 'new/appointment_detail.html'
 

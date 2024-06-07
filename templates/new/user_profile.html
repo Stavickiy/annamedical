@@ -73,7 +73,9 @@
                                                                             {% elif appointment.status == 'canceled' %}danger
                                                                             {% endif %} align-self-start"></i>
                                             <div class="activity-content">
+                                                <a href="{% url 'appointment:appointment_detail' appointment.pk %}">
                                                 <span class=" fw-bold text-dark text-uppercase">{{ appointment.patient }}</span><br>
+                                                </a>
                                                 Доктор: {{appointment.doctor}}
                                                 <br>
                                                 {% for items in appointment.items.all %} {{ items.service }} {% if not forloop.last %}|{% endif %} {% endfor %}

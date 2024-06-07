@@ -39,9 +39,8 @@
                                 <label class="col-md-4 col-lg-3 col-form-label">Пациент*</label>
                                 <div class="col-md-8 col-lg-9">
                                     <select class="form-select" name="patient" aria-label="Default select example" id="patient" required>
-                                        <option selected value="{{ patient.id }}">{{ patient }}</option>
                                         {% for patient in patients %}
-                                        <option value="{{ patient.id }}">{{ patient }}</option>
+                                        <option value="{{ patient.id }}" {% if patient == patient_selected %}selected{% endif %}>{{ patient }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -105,7 +104,7 @@
                             <div class="row mb-3">
                                 <label class="col-md-4 col-lg-3 col-form-label">Добавить процедуры*</label>
                                 <div class="col-md-8 col-lg-9">
-                                    <select class="form-select" name="items" id="items" multiple aria-label="multiple select example">
+                                    <select class="form-select" name="items" id="items" multiple aria-label="multiple select example" required>
                                         {% for service in services %}
                                         <option value="{{ service.id }}">{{ service.name }}</option>
                                         {% endfor %}

@@ -15,7 +15,7 @@ class LoginUser(LoginView):
     Presents a form for user login.
     """
     form_class = LoginUserForm
-    template_name = 'users/login.html'
+    template_name = 'new/login.html'
     extra_context = {'title': 'Вход в в профиль пользователя'}
 
 
@@ -33,7 +33,7 @@ class RegisterUser(CreateView):
         success_url (str): The URL to redirect to after successful registration.
     """
     form_class = RegisterUserForm
-    template_name = 'users/register.html'
+    template_name = 'new/register.html'
     extra_context = {'title': 'Регистрация  пользователя'}
     success_url = reverse_lazy('users:login')
 

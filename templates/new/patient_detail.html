@@ -43,9 +43,9 @@
                         <img src="{% if patient.photo %}{{ patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="Patient Photo">
                         <h2>{{ patient.full_name }}</h2>
                         <div class="social-links mt-2">
-                            <a href="{% if patient.telegram %}{{ patient.telegram }}{% else %}#{% endif %}"
+                            <a href="{% if patient.telegram %}https://t.me/{{ patient.telegram }}{% else %}#{% endif %}"
                                class="telegram"><i class="bi bi-telegram"></i></a>
-                            <a href="{% if patient.instagram %}{{ patient.instagram }}{% else %}#{% endif %}"
+                            <a href="{% if patient.instagram %}https://www.instagram.com/{{ patient.instagram }}{% else %}#{% endif %}"
                                class="instagram"><i class="bi bi-instagram"></i></a>
                         </div>
                         <div class="text-left mt-3">
@@ -204,18 +204,7 @@
                                                    value="{{ patient.city }}" data-original-value="{{ patient.city }}">
                                         </div>
                                     </div>
-
-                                    <div class="row mb-3">
-                                        <label class="col-md-4 col-lg-3 col-form-label">Клиника</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <select class="form-select" name="clinic" aria-label="Default select example" id="clinic" data-original-value="{{ patient.clinic.id }}">
-                                                {% for clinic in clinics %}
-                                                <option value="{{ clinic.id }}" {% if patient.clinic.id == clinic.id %}selected{% endif %}>{{ clinic }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-
+                                    <input type="hidden" name="clinic" id="clinic" value="{{ patient.clinic.id }}">
                                     <div class="row mb-3">
                                         <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
                                         <div class="col-md-8 col-lg-9">

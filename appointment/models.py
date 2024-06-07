@@ -42,4 +42,4 @@ class AppointmentItem(models.Model):
 
 class Photo(models.Model):
     photo = models.ImageField(upload_to='appointments_photo/', blank=True)
-    appointment = models.ForeignKey(Appointment, on_delete=models.PROTECT, related_name='photos')
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='photos')

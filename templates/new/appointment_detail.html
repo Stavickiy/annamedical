@@ -1,12 +1,11 @@
 {% extends 'new/base.html' %}
+{% load tz %}
 {% block content %}
 <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
-<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">-->
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/browser-image-compression/dist/browser-image-compression.min.js"></script>
 
 <main id="main" class="main">
@@ -24,11 +23,10 @@
             <div class="col-xl-4">
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                        <img src="{% if appointment.patient.photo %}{{ appointment.patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="Patient Photo">
                         <h2><a href="{% url 'core:patient_detail' appointment.patient.pk %}">{{ appointment.patient }}</a></h2>
                         <div class="text-left mt-3">
                             Дата записи: <strong>{{ appointment.start.date }}</strong> <br>
-                            Время записи: <strong>{{ appointment.start.time }} - {{ appointment.end.time }}</strong> <br>
+                            Время записи: <strong>{{ appointment.start|timezone:"Europe/Moscow"|time }} - {{ appointment.end|timezone:"Europe/Moscow"|time }}</strong> <br>
                             Статус: <span class="badge bg-{% if appointment.status == 'approved' %}info
                                                                 {% elif appointment.status == 'completed' %}success
                                                                 {% elif appointment.status == 'planned' %}primary

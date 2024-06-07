@@ -72,19 +72,19 @@
 
                         <div class="activity">
                             <nav class="nav flex-column nav-pills">
-                                <form id="patientFilterForm">
+                                <form id="patientFilterForm" action="{% url 'core:patients' %}">
                                     <select class="form-select form-select-sm mb-1" aria-label="Large select example"
-                                            id="doctorId" name="doctorId">
-                                        <option selected>Доктор</option>
+                                            id="doctor_id" name="doctor_id">
+                                        <option {% if doctor_selected %}{%else%}selected{% endif %}>Доктор</option>
                                         {% for doctor in doctors %}
-                                        <option value="{{ doctor.id }}">{{ doctor.full_name }}</option>
+                                        <option value="{{ doctor.id }}" {% if doctor_selected == doctor %}selected{% endif %}>{{ doctor.full_name }}</option>
                                         {% endfor %}
                                     </select>
                                     <select class="form-select form-select-sm mb-1" aria-label="Small select example"
-                                            id="clinicId" name="clinicId">
-                                        <option selected>Клиника</option>
+                                            id="clinic_id" name="clinic_id">
+                                        <option {% if clinic_selected %}{%else%}selected{% endif %}>Клиника</option>
                                         {% for clinic in clinics %}
-                                        <option value="{{ clinic.id }}">{{ clinic.name }}</option>
+                                        <option value="{{ clinic.id }}" {% if clinic_selected == clinic %}selected{% endif %}>{{ clinic.name }}</option>
                                         {% endfor %}
                                     </select>
                                     <div class="mt-3 text-center">
@@ -106,68 +106,64 @@
 
 </main><!-- End #main -->
 <script>
-
-function updatePatientsList(data) {
-    // Очищаем текущий список пациентов
-    var patientsTableBody = document.querySelector("#patientsTable tbody");
-    patientsTableBody.innerHTML = "";
-
-    // Добавляем новые строки с пациентами в таблицу
-    data.forEach(function(patient, index) {
-        var row = `
-
-            <tr>
-                <th scope="row"><img class="img-fluid flex-shrink-0"
-                                     src="${patient.photo}" alt="${patient.name}"
-                                     style="min-width: 50px" width="50"></th>
-                <td><a href="#">${patient.full_name}</a></td>
-                <td>${patient.doctor_full_name}</td>
-                <th scope="row">${patient.clinic_name}</th>
-                <td><a class="btn btn-outline-primary btn-sm"
-                       href="${patient.url}">Детально</a></td>
-            </tr>`;
-        patientsTableBody.innerHTML += row;
-    });
-}
-
 document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("patientFilterForm").addEventListener("submit", function(event) {
+    var form = document.getElementById("patientFilterForm");
+    var submitButton = form.querySelector("button[type='submit']");
+    var originalFormData = new FormData(form);
+
+    // Функция для проверки изменений в форме и активации кнопки
+    function checkFormChanges() {
+        var currentFormData = new FormData(form);
+        var changed = false;
+
+        // Проверяем, были ли изменены значения полей формы
+        for (var pair of currentFormData.entries()) {
+            var originalValue = originalFormData.get(pair[0]);
+            var currentValue = pair[1];
+
+            // Если значения не равны или одно из них не определено, значит было изменение
+            if (currentValue !== originalValue || (currentValue === undefined && !originalFormData.has(pair[0]))) {
+                changed = true;
+                break;
+            }
+        }
+
+        // Активируем кнопку, если есть изменения, иначе деактивируем
+        submitButton.disabled = !changed;
+    }
+
+    // Добавляем обработчик событий на изменения в форме
+    form.addEventListener("change", checkFormChanges);
+
+    // Добавляем обработчик событий на ввод в текстовые поля формы
+    var inputs = form.querySelectorAll("input[type='text'], input[type='number']");
+    inputs.forEach(function(input) {
+        input.addEventListener("input", checkFormChanges);
+    });
+
+    // Обработчик отправки формы
+    form.addEventListener("submit", function(event) {
         event.preventDefault(); // Предотвращаем отправку формы по умолчанию
 
         // Получаем значения выбранных доктора и клиники
-        var doctorId = document.getElementById("doctorId").value;
-        var clinicId = document.getElementById("clinicId").value;
+        var doctor_id = document.getElementById("doctor_id").value;
+        var clinic_id = document.getElementById("clinic_id").value;
 
         // Формируем URL с параметрами фильтрации
-        var apiUrl = "http://127.0.0.1:8000/api/patients_list/?";
-        if (doctorId) {
-            apiUrl += "doctor_id=" + doctorId + "&";
+        var url = "{% url 'core:patients' %}?";
+        if (doctor_id) {
+            url += "doctor_id=" + doctor_id + "&";
         }
-        if (clinicId) {
-            apiUrl += "clinic_id=" + clinicId + "&";
+        if (clinic_id) {
+            url += "clinic_id=" + clinic_id + "&";
         }
 
-        // Отправляем запрос к API
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                // Обновляем список пациентов на странице
-                updatePatientsList(data);
-
-                // Обновляем URL без перезагрузки страницы
-                var newUrl = window.location.pathname + "?";
-                if (doctorId != 'Доктор') {
-                    newUrl += "doctor_id=" + doctorId + "&";
-                }
-                if (clinicId != 'Клиника') {
-                    newUrl += "clinic_id=" + clinicId + "&";
-                }
-                newUrl = newUrl.slice(0, -1); // Убираем последний символ "&"
-                history.pushState({}, "", newUrl);
-            })
-            .catch(error => console.error("Ошибка при отправке запроса:", error));
+        // Перенаправляем на новый URL
+        window.location.href = url;
     });
-});
 
+    // Инициализируем состояние кнопки при загрузке страницы
+    checkFormChanges();
+});
 </script>
 {% endblock %}

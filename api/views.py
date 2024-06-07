@@ -48,22 +48,6 @@ class AppointmentsAPIList(LoginRequiredMixin, ListAPIView):
 
         return appointments
 
-    # def get_queryset(self):
-    #     doctor_pk = self.request.query_params.get('doc', None)
-    #     # Получаем текущую дату
-    #     current_date = datetime.now().date()
-    #
-    #     # Определяем дату, на которую будет осуществлено отображение
-    #     end_date = current_date + timedelta(days=7)
-    #
-    #     # Фильтруем записи Appointment по полю date
-    #     if doctor_pk:
-    #         doctor = get_object_or_404(Doctor, pk=doctor_pk)
-    #         appointments = doctor.appointments.filter(start__date__gte=current_date, start__date__lte=end_date)
-    #     else:
-    #         appointments = Appointment.objects.filter(start__date__gte=current_date, start__date__lte=end_date)
-    #     return appointments
-
 
 class AppointmentAPIView(LoginRequiredMixin, RetrieveUpdateDestroyAPIView):
     queryset = Appointment.objects.all()

@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-jne)+p@pd+$im6=8)1abpp5p2(&pm)j&w5ds$kgzd*%u^v6%nb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # AUTH_USER_MODEL = 'users.User'
 
@@ -92,6 +92,10 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+LOGIN_REDIRECT_URL = 'core:index'
+LOGOUT_REDIRECT_URL = 'users:login'
+LOGIN_URL = 'users:login'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

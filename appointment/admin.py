@@ -12,7 +12,7 @@ class PhotoInline(admin.TabularInline):
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = ('id', 'patient', 'doctor', 'start', 'end', 'type', 'status', 'clinic')
     list_display_links = ('id', 'patient')
-    fields = ('patient', 'doctor', 'start', 'end', 'services',
+    fields = ('patient', 'doctor', 'start', 'end',
               'description', 'type', 'status', 'get_procedures', 'clinic')
     # filter_horizontal = ('services',)
     readonly_fields = ['get_procedures']

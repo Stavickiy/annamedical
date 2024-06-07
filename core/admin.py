@@ -29,8 +29,11 @@ class PatientAdmin(admin.ModelAdmin):
 
     @admin.display(description='Фото пациента')
     def photo_display(self, patient: Patient):
+        if patient.photo:
+            return mark_safe(
+                f"<a href='{patient.photo.url}'><img src='{patient.photo.url}' alt='{patient.last_name}' width='100'></a>")
         return mark_safe(
-            f"<a href='{patient.photo.url}'><img src='{patient.photo.url}' alt='{patient.last_name}' width='100'></a>")
+                f"<a href='/media/img/logo_profile.png'><img src='/media/img/logo_profile.png' alt='{patient.last_name}' width='100'></a>")
 
 
 @admin.register(Service)
