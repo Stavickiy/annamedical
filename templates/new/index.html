@@ -51,7 +51,7 @@
                                                                 {% elif appointment.status == 'planned' %}primary
                                                                 {% elif appointment.status == 'canceled' %}danger
                                                                 {% endif %}">{{appointment.get_status_display}}</span>
-                                        {% if appointment.photos.all %}
+                                        {% if appointment.media.all %}
                                         <span><strong><i class="bi bi-camera"></i><i class="bi bi-check-circle-fill" style="color:green;"></i></strong></span>
                                         {% endif %}
                                         </td>

@@ -118,7 +118,7 @@ class PatientDetail(LoginRequiredMixin, ClinicAccessMixin, DetailView):
         context = super().get_context_data(**kwargs)
         patient = context['patient']
 
-        context['appointments'] = list(patient.appointments.all().prefetch_related('photos').order_by('-start'))
+        context['appointments'] = list(patient.appointments.all().prefetch_related('media').order_by('-start'))
 
         # выбираем только тех докторов которы работают в клиниках юзера
         user = self.request.user

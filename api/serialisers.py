@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from appointment.models import Appointment, Photo, AppointmentItem
+from appointment.models import Appointment, AppointmentItem, Media
 from core.models import Patient, Service
 from django.urls import reverse
 
@@ -101,7 +101,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AppointmentPhotoSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Photo
+class AppointmentMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
         fields = '__all__'

@@ -22,7 +22,7 @@ class PatientAdmin(admin.ModelAdmin):
     list_display = ('id', 'first_name', 'last_name', 'doctor', 'clinic', 'city',
                     'phone_number', 'instagram', 'telegram', 'photo_display',)
     list_display_links = ('id', 'last_name')
-    fields = ('first_name', 'last_name', 'date_of_birth', 'doctor', 'clinic', 'city', 'gender', 'photo',
+    fields = ('first_name', 'last_name', 'date_of_birth', 'doctor', 'clinic', 'city', 'photo',
               'phone_number', 'instagram', 'telegram', 'photo_display', 'medical_history')
     readonly_fields = ['photo_display']
 

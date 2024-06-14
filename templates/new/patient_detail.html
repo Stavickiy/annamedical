@@ -43,10 +43,14 @@
                         <img src="{% if patient.photo %}{{ patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="Patient Photo">
                         <h2>{{ patient.full_name }}</h2>
                         <div class="social-links mt-2">
+                            {% if patient.telegram %}
                             <a href="{% if patient.telegram %}https://t.me/{{ patient.telegram }}{% else %}#{% endif %}"
                                class="telegram"><i class="bi bi-telegram"></i></a>
+                            {% endif %}
+                            {% if patient.instagram %}
                             <a href="{% if patient.instagram %}https://www.instagram.com/{{ patient.instagram }}{% else %}#{% endif %}"
                                class="instagram"><i class="bi bi-instagram"></i></a>
+                            {% endif %}
                         </div>
                         <div class="text-left mt-3">
                             <h4 class="font-13 text-uppercase">Анамнез пациента:</h4>
@@ -121,7 +125,7 @@
                                                 </a>
                                                 Доктор: {{appointment.doctor}}
                                                 <br>
-                                                {% if appointment.photos.all %}
+                                                {% if appointment.media.all %}
                                                 <span><strong><i class="bi bi-camera"></i><i class="bi bi-check-circle-fill" style="color:green;"></i></strong></span>
                                                 <br>
                                                 {% endif %}

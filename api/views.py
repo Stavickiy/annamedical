@@ -1,3 +1,4 @@
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
@@ -10,8 +11,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.serialisers import PatientSerializer, AppointmentSerializer, AppointmentDetailSerializer, \
-    PatientUpdateSerializer, ServiceSerializer, AppointmentPhotoSerializer, AppointmentItemSerializer
-from appointment.models import Appointment, Photo, AppointmentItem
+    PatientUpdateSerializer, ServiceSerializer, AppointmentMediaSerializer, AppointmentItemSerializer
+from appointment.models import Appointment, AppointmentItem, Media
 from core.models import Patient, Doctor, Service
 from datetime import datetime, timedelta
 
@@ -152,7 +153,26 @@ class CreateServiceAPIView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class AddedAppointmentPhotoAPI(ListCreateAPIView):
-    queryset = Photo
-    serializer_class = AppointmentPhotoSerializer
+class AddedAppointmentPhotoAPI(APIView):
     permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        medias = request.FILES.getlist('medias')
+        appointment_id = request.data.get('appointment')
+
+        if not medias or not appointment_id:
+            return Response({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+
+        uploaded_media = []
+        for media in medias:
+            if media.content_type.startswith('image/'):
+                media_instance = Media(appointment_id=appointment_id, photo=media)
+            elif media.content_type.startswith('video/'):
+                media_instance = Media(appointment_id=appointment_id, video=media)
+            else:
+                continue
+
+            media_instance.save()
+            uploaded_media.append(AppointmentMediaSerializer(media_instance).data)
+
+        return Response(uploaded_media, status=status.HTTP_201_CREATED)

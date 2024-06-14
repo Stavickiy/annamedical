@@ -152,6 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
+        submitButton.disabled = true; // Disable the button immediately after form submission
+
         const formData = new FormData(form);
 
         fetch(form.action, {
@@ -175,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
+            submitButton.disabled = false; // Re-enable the button if there's an error
         });
     });
 

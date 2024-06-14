@@ -40,6 +40,14 @@ class AppointmentItem(models.Model):
         ordering = ('service__name',)
 
 
-class Photo(models.Model):
-    photo = models.ImageField(upload_to='appointments_photo/', blank=True)
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='photos')
+class Media(models.Model):
+    photo = models.ImageField(upload_to='appointments_media/', blank=True, null=True)
+    video = models.FileField(upload_to='appointments_media/', blank=True, null=True)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='media')
+
+    def __str__(self):
+        if self.photo:
+            return f"Photo {self.id}"
+        elif self.video:
+            return f"Video {self.id}"
+        return f"Media {self.id}"
