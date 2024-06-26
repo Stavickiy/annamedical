@@ -40,7 +40,7 @@
                                     {% for patient in patients %}
                                     <tr>
                                         <th scope="row"><img class="img-fluid flex-shrink-0"
-                                                             src="{% if patient.photo %}{{ patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" alt="{{ patient }}"
+                                                             src="{% if patient.photo %}{{ patient.photo.url }}{% else %}/media/img/logo_profile.png{% endif %}" loading="lazy" alt="{{ patient }}"
                                                              style="min-width: 50px" width="50"></th>
                                         <td><a href="{% url 'core:patient_detail' patient.pk %}">{{ patient.full_name }}</a></td>
                                         <td>{{ patient.doctor }}</td>

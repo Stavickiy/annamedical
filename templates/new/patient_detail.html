@@ -44,11 +44,12 @@
                         <h2>{{ patient.full_name }}</h2>
                         <div class="social-links mt-2">
                             {% if patient.telegram %}
-                            <a href="{% if patient.telegram %}https://t.me/{{ patient.telegram }}{% else %}#{% endif %}"
-                               class="telegram"><i class="bi bi-telegram"></i></a>
+                                <a href="https://t.me/{{ patient.telegram|cut:'@' }}" class="telegram">
+                                    <i class="bi bi-telegram"></i>
+                                </a>
                             {% endif %}
                             {% if patient.instagram %}
-                            <a href="{% if patient.instagram %}https://www.instagram.com/{{ patient.instagram }}{% else %}#{% endif %}"
+                            <a href="{% if patient.instagram %}https://www.instagram.com/{{ patient.instagram|cut:'@' }}{% else %}#{% endif %}"
                                class="instagram"><i class="bi bi-instagram"></i></a>
                             {% endif %}
                         </div>

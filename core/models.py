@@ -1,5 +1,8 @@
-from datetime import datetime
+from PIL import Image, ExifTags
+from io import BytesIO
+import sys
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 
 
@@ -13,6 +16,7 @@ class Clinic(models.Model):
 class Doctor(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=50)
+    second_name = models.CharField(max_length=30, default='')
     is_main = models.BooleanField(default=False, blank=True)
     photo = models.ImageField(upload_to='doctors_photo/')
     specialization = models.CharField(max_length=200, default=0)
@@ -45,6 +49,7 @@ class Patient(models.Model):
 
     class Meta():
         ordering = ['last_name', 'first_name']
+
 
     def __str__(self):
         return ' '.join((str(self.last_name), str(self.first_name)))

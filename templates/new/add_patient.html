@@ -7,32 +7,28 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- Модальное окно -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+
+<!-- Spinner Modal -->
+<div class="modal fade" id="spinnerModal" tabindex="-1" aria-labelledby="spinnerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">Успех</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Пациент успешно создан.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="redirectButton">Перейти к деталям</button>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Загрузка...</span>
+                </div>
+                <p>Подождите, идет создание пациента...</p>
             </div>
         </div>
     </div>
 </div>
+
 <main id="main" class="main">
-    <!-- Bootstrap CSS -->
     <section class="section">
         <div class="row" style="justify-content: center;">
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Создание карточки пациента</h5>
-                        <!-- Profile Edit Form -->
                         <form id="patient-form" enctype="multipart/form-data" action="{% url 'api:create_patient' %}">
                             {% csrf_token %}
                             <div class="row mb-3">
@@ -114,20 +110,20 @@
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary" id="submit-button" disabled>Сохранить</button>
                             </div>
-                        </form><!-- End Profile Edit Form -->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 </main>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('patient-form');
     const submitButton = document.getElementById('submit-button');
     const requiredFields = form.querySelectorAll('input[required], select[required]');
-    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-    const redirectButton = document.getElementById('redirectButton');
+    const spinnerModal = new bootstrap.Modal(document.getElementById('spinnerModal'), { backdrop: 'static', keyboard: false });
 
     function checkFormValidity() {
         let isValid = true;
@@ -139,17 +135,63 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = !isValid;
     }
 
+    function compressImage(file, callback) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const maxWidth = 800; // Set max width for resizing
+                const scale = maxWidth / img.width;
+                canvas.width = maxWidth;
+                canvas.height = img.height * scale;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(function(blob) {
+                    if (blob.size > 1048576) {
+                        alert('Фото слишком велико, пожалуйста, выберите другое фото.');
+                        callback(null);
+                    } else {
+                        callback(blob);
+                    }
+                }, 'image/jpeg', 0.9); // Adjust the quality parameter as needed
+            };
+        };
+    }
+
     requiredFields.forEach(field => {
         field.addEventListener('input', checkFormValidity);
-        field.addEventListener('change', checkFormValidity); // For select elements
+        field.addEventListener('change', checkFormValidity);
     });
 
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-        submitButton.disabled = true; // Disable the button immediately after form submission
+        submitButton.disabled = true;
+        spinnerModal.show();
 
         const formData = new FormData(form);
+        const photoInput = document.getElementById('photo');
+        const photoFile = photoInput.files[0];
 
+        if (photoFile) {
+            compressImage(photoFile, function(compressedPhoto) {
+                if (compressedPhoto) {
+                    spinnerModal.hideWithDelay(2000);
+                    formData.set('photo', compressedPhoto, photoFile.name);
+                    submitForm(formData);
+                } else {
+                    spinnerModal.hideWithDelay(2000); // Hide modal with delay
+                    submitButton.disabled = false;
+                }
+            });
+        } else {
+            submitForm(formData);
+        }
+    });
+
+    function submitForm(formData) {
         fetch(form.action, {
             method: 'POST',
             body: formData,
@@ -164,18 +206,25 @@ document.addEventListener('DOMContentLoaded', function() {
             throw new Error('Ошибка при создании.');
         })
         .then(data => {
-            successModal.show();
-            redirectButton.addEventListener('click', function() {
-                window.location.href = `/patient_detail/${data.id}/`;
-            });
+            // Redirect to patient detail page on success
+            window.location.href = `/patient_detail/${data.id}`; // Assuming data.id contains the ID of the newly created patient
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
-            submitButton.disabled = false; // Re-enable the button if there's an error
+            spinnerModal.hideWithDelay(1000); // Hide modal with delay
+            submitButton.disabled = false;
         });
-    });
+    }
 
-    checkFormValidity(); // Initial check in case fields are pre-filled
+    // Extend bootstrap modal prototype to support hide with delay
+    bootstrap.Modal.prototype.hideWithDelay = function(delay) {
+        var _this = this;
+        setTimeout(function() {
+            _this.hide();
+        }, delay);
+    };
+
+    checkFormValidity();
 });
 </script>
 {% endblock %}

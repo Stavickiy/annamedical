@@ -6,9 +6,9 @@ from .models import Doctor, Patient, Service, Clinic
 
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'specialization', 'is_main', 'doctor_photo')
+    list_display = ('id', 'first_name', 'last_name', 'second_name', 'specialization', 'is_main', 'doctor_photo')
     list_display_links = ('id', 'last_name')
-    fields = ('first_name', 'last_name', 'is_main', 'doctor_photo', 'clinic', 'specialization', 'photo')
+    fields = ('first_name', 'last_name', 'second_name', 'is_main', 'doctor_photo', 'clinic', 'specialization', 'photo')
     readonly_fields = ['doctor_photo']
 
     @admin.display(description='Фото доктора')

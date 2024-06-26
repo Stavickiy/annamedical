@@ -92,7 +92,7 @@
                                                                 {% elif appointment.status == 'canceled' %}danger
                                                                 {% endif %}">{{appointment.get_status_display}}</span>
                             <br>
-                            Доктор: <strong>{{appointment.doctor}}</strong><br>
+                            Доктор: <strong>{{appointment.doctor}} {{appointment.doctor.second_name}}</strong><br>
                             Тип записи: <strong>{{ appointment.get_type_display }}</strong><br>
                             Примечание: <div style="word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; white-space: pre-wrap;"><strong>{{appointment.description}}</strong></div>
                         </div>

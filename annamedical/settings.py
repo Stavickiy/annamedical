@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
+
+from celery.schedules import crontab
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -151,4 +153,24 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ]
+}
+
+TWILIO_ACCOUNT_SID = 'AC88ec64a909a99651a72d8da95d6c0150'
+TWILIO_AUTH_TOKEN = 'f0f7310201894d897eb4aa2429db4ab0'
+TWILIO_PHONE_NUMBER = '+18039109647'
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+# Celery Beat Schedule
+CELERY_BEAT_SCHEDULE = {
+    'send-reminders': {
+        'task': 'core.tasks.send_reminders',
+        'schedule': crontab(hour=17, minute=7),
+    },
 }
