@@ -1,5 +1,6 @@
 from appointment.models import Appointment
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 
 def user_context_processor(request):
@@ -19,6 +20,18 @@ def count_appointments_processor(request):
         # Фильтруем записи Appointment по полю start
         appointments_by_doctor_today = Appointment.objects.filter(doctor=request.user.doctor,
                                                                   start__range=(start_of_day, end_of_day)).exclude(
-                                                                  status='canceled')
-        return {'appointments_by_doctor_today': appointments_by_doctor_today}
+            status='canceled')
+
+        now = timezone.now()
+
+        appointments_missing = Appointment.objects.filter(
+            doctor=request.user.doctor
+        ).exclude(
+            status__in=['canceled', 'completed']
+        ).filter(
+            start__lt=now
+        )
+
+        return {'appointments_by_doctor_today': appointments_by_doctor_today,
+                'appointments_missing': appointments_missing}
     return {}

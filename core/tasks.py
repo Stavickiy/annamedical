@@ -7,6 +7,7 @@ from appointment.models import Appointment
 import requests
 import json
 import logging
+from decouple import config
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,7 +36,7 @@ def validate_and_format_phone_number(phone_number):
 def send_reminders():
     # URL с параметрами
     url = "https://admin.p1sms.ru/apiSms/create"
-    api_key = "Oda8dkcQtXlehryWQvHKEiaeKz7QAbC1SQNJ4CAKkx4nYciPNnLJr4Q61rqi"
+    api_key = config('SMS_API_KEY')
 
     # Текущее время
     now = timezone.now()

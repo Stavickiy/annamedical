@@ -56,7 +56,39 @@
 
     <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
+            {% if appointments_missing %}
+            <li class="nav-item dropdown">
+                <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                    <i class="bi bi-exclamation-circle" style="color:red"></i>
+                    <span class="badge bg-primary badge-number">{{ appointments_missing|length }}</span>
+                </a><!-- End Notification Icon -->
 
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                    <li class="dropdown-header">
+                        Не завершенные посещения: {{ appointments_missing|length }}
+                    </li>
+                    {% for appointment in appointments_missing %}
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li class="notification-item">
+                        <i class="bi bi-exclamation-circle text-warning"></i>
+                        <a href="{% url 'appointment:appointment_detail' appointment.pk %}">
+                            <div>
+                                <h4>{{ appointment.patient }}</h4>
+                                <p>{{ appointment.start.date|date:"d/M" }} {{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}</p>
+                            </div>
+                        </a>
+                    </li>
+
+                    {% endfor %}
+
+                </ul><!-- End Notification Dropdown Items -->
+
+            </li><!-- End Notification Nav -->
+            {% endif %}
+            {% if appointments_by_doctor_today %}
             <li class="nav-item dropdown">
 
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
@@ -78,7 +110,7 @@
                         <a href="{% url 'appointment:appointment_detail' appointment.pk %}">
                             <div>
                                 <h4>{{ appointment.patient }}</h4>
-                                <p>{% for service in appointment.services.all %} {{ service }} {% if not forloop.last %}|{% endif %} {% endfor %}</p>
+                                <p>{% for item in appointment.items.all %} {{ item.service }} {% if not forloop.last %}|{% endif %} {% endfor %}</p>
                                 <p>{{ appointment.start.time|time:"H:i" }}-{{ appointment.end.time|time:"H:i" }}</p>
                             </div>
                         </a>
@@ -89,6 +121,7 @@
                 </ul><!-- End Notification Dropdown Items -->
 
             </li><!-- End Notification Nav -->
+            {% endif %}
 
             {% if user.is_authenticated %}
             <li class="nav-item dropdown pe-3">
