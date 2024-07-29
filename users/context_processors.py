@@ -20,7 +20,7 @@ def count_appointments_processor(request):
         # Фильтруем записи Appointment по полю start
         appointments_by_doctor_today = Appointment.objects.filter(doctor=request.user.doctor,
                                                                   start__range=(start_of_day, end_of_day)).exclude(
-            status='canceled')
+            status__in=['canceled', 'completed'])
 
         now = timezone.now()
 

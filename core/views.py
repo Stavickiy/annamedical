@@ -60,9 +60,14 @@ class IndexPage(LoginRequiredMixin, TemplateView):
         if doctor_id and doctor_id != 'Доктор':
             context['doctor_selected'] = get_object_or_404(Doctor, id=doctor_id)
             appointments = appointments.filter(doctor_id=doctor_id)
+        else:
+            context['doctor_selected'] = None
+
         if clinic_id and clinic_id != 'Клиника':
             context['clinic_selected'] = get_object_or_404(Clinic, id=clinic_id)
             appointments = appointments.filter(clinic_id=clinic_id)
+        else:
+            context['clinic_selected'] = None
 
         context['appointments'] = appointments
         return context
@@ -80,10 +85,16 @@ class PatientsPage(LoginRequiredMixin, ListView):
         # Получение параметров фильтрации
         doctor_id = self.request.GET.get('doctor_id')
         clinic_id = self.request.GET.get('clinic_id')
+
         if doctor_id and doctor_id != 'Доктор':
             context['doctor_selected'] = get_object_or_404(Doctor, id=doctor_id)
+        else:
+            context['doctor_selected'] = None
+
         if clinic_id and clinic_id != 'Клиника':
             context['clinic_selected'] = get_object_or_404(Clinic, id=clinic_id)
+        else:
+            context['clinic_selected'] = None
 
         context['doctors'] = set([doctor for clinic in user.doctor.clinic.all() for doctor in clinic.doctors.all()])
         context['clinics'] = user.doctor.clinic.all()
