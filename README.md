@@ -1,24 +1,24 @@
 # ANNAMEDICAL
-AnnaMedical CRM - это система управления отношениями с пациентами, разработанная специально для стоматологических клиник. Проект предназначен для учета пациентов, ведения историй болезни и управления записями на прием. Основная часть проекта реализована с использованием Django и Django Rest Framework (DRF), что обеспечивает возможность обновления данных без перезагрузки страницы посредством Ajax-запросов.
+AnnaMedical CRM is a patient relationship management system designed specifically for dental clinics. The project is designed to record patients, maintain medical records and manage appointments. The main part of the project is implemented using Django and Django Rest Framework (DRF), which provides the ability to update data without reloading the page using Ajax requests.
 
-![Описание изображения](media/img/page1.png)
-![Описание изображения](media/img/page2.png)
+![Image description](media/img/page1.png)
+![Image description](media/img/page2.png)
 
-## Содержание
-- [Структура проекта](#структура-проекта)
-- [Технологии](#технологии)
-- [Основные функции](#основные-функции)
-- [Безопасность](#безопасность)
-- [Команда проекта](#команда-проекта)
+## Contents
+- [Project structure](#project-structure)
+- [Technologies](#technologies)
+- [Main functions](#main-functions)
+- [Security](#security)
+- [Project team](#project-team)
 
-## Структура проекта
-Проект разделен на четыре основных приложения:
-- core - Основная логика приложения
-- appointment - Управление записями пациентов на прием
-- users - Управление пользователями и их данными
-- api - Логика работы с API
+## Project structure
+The project is divided into four main applications:
+- core - Main application logic
+- appointment - Managing patient appointments
+- users - Managing users and their data
+- api - Logic for working with the API
 
-## Технологии
+## Technologies
 - Django
 - Django Rest Framework (DRF)
 - JavaScript
@@ -27,24 +27,23 @@ AnnaMedical CRM - это система управления отношения�
 - Bootstrap
 - PostgreSQL
 
+## Main functions
+- Patient accounting and medical records.
+- Managing appointments.
+- Secure storage and processing of personal data.
+- Delimitation of doctors' access to patients of their clinics.
+- API for creating, editing and filtering data on patients and appointments without reloading the page.
+- Updating data on the page via Ajax requests.
 
-## Основные функции
-- Учет пациентов и ведение историй болезни.
-- Управление записями на прием.
-- Безопасное хранение и обработка персональных данных.
-- Разграничение доступа докторов к пациентам своих клиник.
-- API для создания, редактирования и фильтрации данных о пациентах и записях на прием без перезагрузки страницы.
-- Обновление данных на странице посредством Ajax-запросов.
+### Security
+Special attention is paid to the issues of personal data security and access control. Doctors' access is limited only to patients of their clinics.
 
-### Безопасность
-Особое внимание уделено вопросам безопасности персональных данных и разграничению доступа. Доступ докторов ограничен только к пациентам их клиник.
+## Project team
 
-## Команда проекта
+- [Evgeny Stavitsky](https://t.me/Eugenius71991) — Python Developer
 
-- [Евгений Ставицкий](https://t.me/Eugenius71991) — Python Developer
+## Sources
+I got the information from documentation and open sources.
 
-## Источники
-Информацию черпал из документации и открытых источников.
-
-## Заключение
-Вложил душу и сердце!!!
+## Conclusion
+I put my heart and soul into it!!!
